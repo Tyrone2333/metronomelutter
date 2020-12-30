@@ -1,4 +1,13 @@
 import 'package:flutter/material.dart';
+import './component/slider.dart';
+import './component/indactor.dart';
+import 'dart:async';
+import 'package:assets_audio_player/assets_audio_player.dart';
+import './component/summerscar.dart';
+import 'package:wakelock/wakelock.dart';
+import 'package:flutter/foundation.dart';
+import './component/setting.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   runApp(MyApp());
@@ -9,109 +18,146 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: '节拍器',
       theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // Try running your application with "flutter run". You'll see the
-        // application has a blue toolbar. Then, without quitting the app, try
-        // changing the primarySwatch below to Colors.green and then invoke
-        // "hot reload" (press "r" in the console where you ran "flutter run",
-        // or simply save your changes to "hot reload" in a Flutter IDE).
-        // Notice that the counter didn't reset back to zero; the application
-        // is not restarted.
         primarySwatch: Colors.blue,
-        // This makes the visual density adapt to the platform that you run
-        // the app on. For desktop platforms, the controls will be smaller and
-        // closer together (more dense) than on mobile platforms.
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: MyHomePage(title: 'Flutter Demo Home Page'),
+      home: MyHomePage(title: '节拍器'),
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
   MyHomePage({Key key, this.title}) : super(key: key);
-
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
   final String title;
 
   @override
   _MyHomePageState createState() => _MyHomePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+class _MyHomePageState extends State<MyHomePage>
+    with SingleTickerProviderStateMixin {
+  int _bpm = 70;
+  int _nowStep = -1;
+  bool _isRunning = false;
+  Timer timer;
+  AssetsAudioPlayer assetsAudioPlayer = AssetsAudioPlayer();
+  AnimationController _animationController;
+  int soundType = 0;
 
-  void _incrementCounter() {
+  void _setBpmHanlder(int val) {
     setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
+      _bpm = val;
     });
+  }
+
+  void _toggleIsRunning() {
+    if (_isRunning) {
+      timer.cancel();
+      _animationController.reverse();
+    } else {
+      runTimer();
+      _animationController.forward();
+    }
+    setState(() {
+      _isRunning = !_isRunning;
+    });
+  }
+
+  void _setNowStep() {
+    setState(() {
+      _nowStep++;
+    });
+  }
+
+  Future<void> _playAudio() {
+    int nextStep = _nowStep + 1;
+    if (nextStep % 4 == 0) {
+      return assetsAudioPlayer.open(Audio('assets/metronome$soundType-1.mp3'));
+    } else {
+      return assetsAudioPlayer.open(Audio('assets/metronome$soundType-2.mp3'));
+    }
+  }
+
+  void runTimer() {
+    timer = Timer(Duration(milliseconds: (60 / _bpm * 1000).toInt()), () {
+      _playAudio().then((value) => _setNowStep());
+      runTimer();
+    });
+  }
+
+  Future setBpm () async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    int bpm = prefs.getInt('bpm');
+    if (bpm != null) {
+      print('get bpm $bpm');
+      _setBpmHanlder(bpm);
+    }
+  }
+
+  Future setSoundType () async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    int soundType = prefs.getInt('sound');
+    if (soundType != null) {
+      print('get sound type $soundType');
+      this.soundType = soundType;
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    if (!kIsWeb) {
+      Wakelock.enable();
+    }
+    setSoundType();
+    setBpm();
+    _animationController =
+        AnimationController(vsync: this, duration: Duration(milliseconds: 300));
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _animationController.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
     return Scaffold(
-      appBar: AppBar(
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
+        body: Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: <Widget>[
+          Container(
+            padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                IconButton(
+                  icon: Icon(Icons.settings),
+                  color: Theme.of(context).textTheme.headline3.color,
+                  onPressed: () async {
+                    final result = await Navigator.push(context, MaterialPageRoute(builder: (context) => Setting()));
+                    print('setting result: $result');
+                    setSoundType();
+                  },
+                )
+              ],
+            )
+          ),
+          Text(
+            '节拍器',
+            style: Theme.of(context).textTheme.headline3,
+          ),
+          SliderRow(_bpm, _setBpmHanlder, _isRunning, _toggleIsRunning,
+              _animationController),
+          IndactorRow(_nowStep),
+          Summerscar(),
+        ],
       ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Invoke "debug painting" (press "p" in the console, choose the
-          // "Toggle Debug Paint" action from the Flutter Inspector in Android
-          // Studio, or the "Toggle Debug Paint" command in Visual Studio Code)
-          // to see the wireframe for each widget.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Text(
-              'You have pushed the button this many times:',
-            ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headline4,
-            ),
-          ],
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
-    );
+    ) // This trailing comma makes auto-formatting nicer for build methods.
+        );
   }
 }
