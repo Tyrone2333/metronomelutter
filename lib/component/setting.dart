@@ -34,7 +34,7 @@ class Setting extends StatelessWidget {
               context,
               onTap: () async {
                 $confirm(
-                  '基于 flutter 技术打造的全平台节拍器', context,
+                  '基于 flutter 技术打造的极简全平台节拍器', context,
                   // customBody: Text('222'),
                 );
               },
