@@ -1,26 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:metronomelutter/utils/global_function.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Setting extends StatelessWidget {
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('设置')
-      ),
+      appBar: AppBar(title: Text('设置')),
       body: Container(
         child: Column(
           children: [
-            InkWell(
-              child: Container(
-                alignment: Alignment.centerLeft,
-                padding: EdgeInsets.symmetric(vertical: 20, horizontal: 15),
-                child: Text(
-                  '音效',
-                  style: Theme.of(context).textTheme.button,
-                ),
-              ),
+            buildInkWellSettingItem(
+              '音效',
+              context,
               onTap: () async {
                 final res = await changeSound(context);
                 if (res != null) {
@@ -28,24 +20,46 @@ class Setting extends StatelessWidget {
                 }
               },
             ),
-            Builder(
-              builder: (context) => InkWell(
-                child: Container(
-                  alignment: Alignment.centerLeft,
-                  padding: EdgeInsets.symmetric(vertical: 20, horizontal: 15),
-                  child: Text(
-                    '节拍',
-                    style: Theme.of(context).textTheme.button,
-                  ),
-                ),
-                onTap: () {
-                  Scaffold.of(context).showSnackBar(SnackBar(content: Text('还没做呢……')));
-                },
-              )
-            )
+            // 节拍
+            buildInkWellSettingItem(
+              '源码',
+              context,
+              onTap: () async {
+                launchURL('https://github.com/Tyrone2333/metronomelutter');
+              },
+            ),
+            // 节拍
+            buildInkWellSettingItem(
+              '关于',
+              context,
+              onTap: () async {
+                $confirm(
+                  '基于 flutter 技术打造的全平台节拍器', context,
+                  // customBody: Text('222'),
+                );
+              },
+            ),
           ],
         ),
       ),
+    );
+  }
+
+  buildInkWellSettingItem(
+    String text,
+    BuildContext context, {
+    final Function onTap,
+  }) {
+    return InkWell(
+      child: Container(
+        alignment: Alignment.centerLeft,
+        padding: EdgeInsets.symmetric(vertical: 20, horizontal: 15),
+        child: Text(
+          text,
+          style: Theme.of(context).textTheme.button,
+        ),
+      ),
+      onTap: onTap,
     );
   }
 }
