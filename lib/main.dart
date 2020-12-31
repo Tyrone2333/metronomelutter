@@ -1,13 +1,15 @@
-import 'package:flutter/material.dart';
-import './component/slider.dart';
-import './component/indactor.dart';
 import 'dart:async';
+
 import 'package:assets_audio_player/assets_audio_player.dart';
-import './component/summerscar.dart';
-import 'package:wakelock/wakelock.dart';
 import 'package:flutter/foundation.dart';
-import './component/setting.dart';
+import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:wakelock/wakelock.dart';
+
+import './component/indactor.dart';
+import './component/setting.dart';
+import './component/slider.dart';
+import './component/summerscar.dart';
 
 void main() {
   runApp(MyApp());
@@ -36,8 +38,7 @@ class MyHomePage extends StatefulWidget {
   _MyHomePageState createState() => _MyHomePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage>
-    with SingleTickerProviderStateMixin {
+class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateMixin {
   int _bpm = 70;
   int _nowStep = -1;
   bool _isRunning = false;
@@ -87,7 +88,7 @@ class _MyHomePageState extends State<MyHomePage>
     });
   }
 
-  Future setBpm () async {
+  Future setBpm() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     int bpm = prefs.getInt('bpm');
     if (bpm != null) {
@@ -96,7 +97,7 @@ class _MyHomePageState extends State<MyHomePage>
     }
   }
 
-  Future setSoundType () async {
+  Future setSoundType() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     int soundType = prefs.getInt('sound');
     if (soundType != null) {
@@ -113,8 +114,7 @@ class _MyHomePageState extends State<MyHomePage>
     }
     setSoundType();
     setBpm();
-    _animationController =
-        AnimationController(vsync: this, duration: Duration(milliseconds: 300));
+    _animationController = AnimationController(vsync: this, duration: Duration(milliseconds: 300));
   }
 
   @override
@@ -131,28 +131,27 @@ class _MyHomePageState extends State<MyHomePage>
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
           Container(
-            padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                IconButton(
-                  icon: Icon(Icons.settings),
-                  color: Theme.of(context).textTheme.headline3.color,
-                  onPressed: () async {
-                    final result = await Navigator.push(context, MaterialPageRoute(builder: (context) => Setting()));
-                    print('setting result: $result');
-                    setSoundType();
-                  },
-                )
-              ],
-            )
-          ),
-          Text(
-            '节拍器',
-            style: Theme.of(context).textTheme.headline3,
-          ),
-          SliderRow(_bpm, _setBpmHanlder, _isRunning, _toggleIsRunning,
-              _animationController),
+              padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  IconButton(
+                    icon: Icon(Icons.settings),
+                    color: Theme.of(context).textTheme.headline3.color,
+                    onPressed: () async {
+                      final result = await Navigator.push(context, MaterialPageRoute(builder: (context) => Setting()));
+                      print('setting result: $result');
+                      setSoundType();
+                    },
+                  )
+                ],
+              )),
+          // Text(
+          //   '节拍器',
+          //   style: Theme.of(context).textTheme.headline3,
+          // ),
+          SliderRow(_bpm, _setBpmHanlder, _isRunning, _toggleIsRunning, _animationController),
+
           IndactorRow(_nowStep),
           Summerscar(),
         ],
