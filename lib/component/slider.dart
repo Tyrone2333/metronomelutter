@@ -22,6 +22,21 @@ class SliderRow extends StatelessWidget {
     _storeBpm(value.toInt());
   }
 
+  handleSetBPMConfirm(text) {
+    var bpm;
+    try {
+      bpm = double.parse(text);
+    } catch (e) {
+      print('转换失败 $text ');
+    }
+    if (bpm != null) {
+      if (bpm < Config.BPM_MIN || bpm > Config.BPM_MAX) {
+        return $warn('BPM 支持 ${Config.BPM_MIN} -  ${Config.BPM_MAX}');
+      }
+      handleSliderChange(bpm);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(children: [
@@ -31,36 +46,27 @@ class SliderRow extends StatelessWidget {
           GestureDetector(
             onTap: () {
               $confirm(
-                'aaa',
+                '',
                 context,
+                title: 'BPM',
                 customBody: TextField(
                   controller: textController,
                   keyboardType: TextInputType.number,
-
                   // 如果你想只输入数字,需要加上这个
                   inputFormatters: <TextInputFormatter>[
                     FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d*')),
-                  ], // Only numbers can be entered
+                  ],
                   decoration: InputDecoration(
                     hintText: this.bpm.toString(),
                     filled: true,
                     fillColor: Colors.grey.shade50,
                   ),
+                  onSubmitted: (text) {
+                    Navigator.of(context).pop();
+                    handleSetBPMConfirm(text);
+                  },
                 ),
-                btnOkOnPress: () {
-                  var bpm;
-                  try {
-                    bpm = double.parse(textController.text);
-                  } catch (e) {
-                    print('转换失败 ${textController.text} ');
-                  }
-                  if (bpm != null) {
-                    if (bpm < Config.BPM_MIN || bpm > Config.BPM_MAX) {
-                      return $warn('BPM 支持 ${Config.BPM_MIN} -  ${Config.BPM_MAX}');
-                    }
-                    handleSliderChange(bpm);
-                  }
-                },
+                btnOkOnPress: () => handleSetBPMConfirm(textController.text),
               );
             },
             child: SleekCircularSlider(
