@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:metronomelutter/component/about_me.dart';
 import 'package:metronomelutter/utils/global_function.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -33,10 +34,12 @@ class Setting extends StatelessWidget {
               '关于',
               context,
               onTap: () async {
-                $confirm(
-                  '基于 flutter 技术打造的极简全平台节拍器', context,
-                  // customBody: Text('222'),
-                );
+                showDialog(context: context, builder: (ctx) => AboutMe());
+
+                // $confirm(
+                //   '基于 flutter 技术打造的极简全平台节拍器', context,
+                //   // customBody: Text('222'),
+                // );
               },
             ),
           ],

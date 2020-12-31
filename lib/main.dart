@@ -7,9 +7,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wakelock/wakelock.dart';
 
 import './component/indactor.dart';
-import './component/setting.dart';
 import './component/slider.dart';
-import './component/summerscar.dart';
+import 'pages/setting.dart';
 
 void main() {
   runApp(MyApp());
@@ -153,7 +152,6 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
           SliderRow(_bpm, _setBpmHanlder, _isRunning, _toggleIsRunning, _animationController),
 
           IndactorRow(_nowStep),
-          Summerscar(),
         ],
       ),
     ) // This trailing comma makes auto-formatting nicer for build methods.
