@@ -68,32 +68,28 @@ class Setting extends StatelessWidget {
 }
 
 Future<int> changeSound(context) async {
+  buildOpt(String name, val) {
+    return SimpleDialogOption(
+      onPressed: () {
+        // 返回1
+        Navigator.pop(context, val);
+      },
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 6),
+        child: Text(name),
+      ),
+    );
+  }
+
   int i = await showDialog<int>(
       context: context,
       builder: (BuildContext context) {
         return SimpleDialog(
           title: const Text('请选择音效'),
           children: <Widget>[
-            SimpleDialogOption(
-              onPressed: () {
-                // 返回1
-                Navigator.pop(context, 0);
-              },
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 6),
-                child: const Text('音效一'),
-              ),
-            ),
-            SimpleDialogOption(
-              onPressed: () {
-                // 返回2
-                Navigator.pop(context, 1);
-              },
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 6),
-                child: const Text('音效二'),
-              ),
-            ),
+            buildOpt('音效一', 0),
+            buildOpt('音效二', 1),
+            buildOpt('音效三', 2),
           ],
         );
       });

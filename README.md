@@ -8,8 +8,9 @@
 
 ![preview](./screenshot/preview.png)
 # TODO
+- 状态管理
 - 样式修改
-- 节拍
+- 拍号
 - 暗黑模式
 - iOS App Clip
 - 动画优化

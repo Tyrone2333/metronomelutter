@@ -70,8 +70,8 @@ class SliderRow extends StatelessWidget {
               );
             },
             child: SleekCircularSlider(
-                min: 30,
-                max: 200,
+                min: Config.BPM_MIN.toDouble(),
+                max: Config.BPM_MAX.toDouble(),
                 initialValue: this.bpm.toDouble(),
                 appearance: CircularSliderAppearance(
                     size: 270,
