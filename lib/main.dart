@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:assets_audio_player/assets_audio_player.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:metronomelutter/config/config.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wakelock/wakelock.dart';
 
@@ -92,6 +93,10 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
     int bpm = prefs.getInt('bpm');
     if (bpm != null) {
       print('get bpm $bpm');
+      // 超过范围,重置回默认
+      if (bpm < Config.BPM_MIN || bpm > Config.BPM_MAX) {
+        bpm = Config.BPM_DEFAULT;
+      }
       _setBpmHanlder(bpm);
     }
   }
