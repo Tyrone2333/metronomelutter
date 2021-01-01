@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:metronomelutter/component/about_me.dart';
 import 'package:metronomelutter/store/index.dart';
 import 'package:metronomelutter/utils/global_function.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class Setting extends StatelessWidget {
   @override

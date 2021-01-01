@@ -8,7 +8,7 @@
 
 ![preview](./screenshot/preview.png)
 # TODO
-- ios 只播放一次音频的问题
+- 高 bpm 声音准确性?
 - 样式修改,优化 SliderRow 不跟手
 - 拍号
 - 暗黑模式

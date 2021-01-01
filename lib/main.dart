@@ -1,8 +1,8 @@
 import 'dart:async';
 
-import 'package:assets_audio_player/assets_audio_player.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:metronomelutter/component/game_audio.dart';
 import 'package:metronomelutter/config/config.dart';
 import 'package:metronomelutter/global_data.dart';
 import 'package:metronomelutter/store/index.dart';
@@ -53,8 +53,8 @@ class _MyHomePageState extends State<MyHomePage>
   int _nowStep = -1;
   bool _isRunning = false;
   Timer timer;
-  AssetsAudioPlayer assetsAudioPlayer = AssetsAudioPlayer();
   AnimationController _animationController;
+  GameAudio myAudio = GameAudio(1);
 
   void _setBpmHanlder(int val) {
     setState(() {
@@ -66,6 +66,7 @@ class _MyHomePageState extends State<MyHomePage>
     if (_isRunning) {
       timer.cancel();
       _animationController.reverse();
+      myAudio.clearAll();
     } else {
       runTimer();
       _animationController.forward();
@@ -85,10 +86,9 @@ class _MyHomePageState extends State<MyHomePage>
     int nextStep = _nowStep + 1;
     int soundType = appStore.soundType;
     if (nextStep % 4 == 0) {
-      return assetsAudioPlayer.open(Audio('assets/metronome$soundType-1.mp3'));
+      return myAudio.play('metronome$soundType-1.mp3');
     } else {
-      // todo 不这样 ios 只播放一次
-      return assetsAudioPlayer.open(Audio('assets/metronome$soundType-2.mp3'));
+      return myAudio.play('metronome$soundType-2.mp3');
     }
   }
 
@@ -121,6 +121,7 @@ class _MyHomePageState extends State<MyHomePage>
     setBpm();
     _animationController =
         AnimationController(vsync: this, duration: Duration(milliseconds: 300));
+    myAudio.init();
   }
 
   @override
