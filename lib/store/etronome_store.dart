@@ -15,6 +15,6 @@ abstract class _MetronomeStore with Store {
   @action
   void setSoundType(payload) {
     soundType = payload;
-    GlobalData.sp.putInt('soundtype', payload);
+    GlobalData.sp.putInt('soundType', payload);
   }
 }
