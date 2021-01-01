@@ -66,7 +66,7 @@ class _MyHomePageState extends State<MyHomePage>
     if (_isRunning) {
       timer.cancel();
       _animationController.reverse();
-      myAudio.clearAll();
+      myAudio.stop();
     } else {
       runTimer();
       _animationController.forward();

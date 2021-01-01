@@ -2,7 +2,7 @@ import 'package:audioplayers/audio_cache.dart';
 import 'package:audioplayers/audioplayers.dart';
 
 class GameAudio {
-  List audioCaches = [];
+  List<AudioCache> audioCaches = [];
 
   List files;
   int maxPlayers;
@@ -17,10 +17,19 @@ class GameAudio {
 
   Future play(String file, {volume = 1.0}) async {
     for (int i = 0; i < maxPlayers; i++) {
-      if (audioCaches[i].fixedPlayer.state != AudioPlayerState.PLAYING) {
-        return audioCaches[i]
-            .play(file, volume: volume, mode: PlayerMode.LOW_LATENCY);
+      if (audioCaches[i].fixedPlayer.state == AudioPlayerState.PLAYING) {
+        audioCaches[i].fixedPlayer.stop();
       }
+      return audioCaches[i]
+          .play(file, volume: volume, mode: PlayerMode.LOW_LATENCY);
+    }
+  }
+
+  Future stop() async {
+    for (int i = 0; i < maxPlayers; i++) {
+      // if (audioCaches[i].fixedPlayer.state == AudioPlayerState.PLAYING) {
+      audioCaches[i].fixedPlayer.stop();
+      // }
     }
   }
 
