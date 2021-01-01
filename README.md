@@ -8,12 +8,21 @@
 
 ![preview](./screenshot/preview.png)
 # TODO
-- 状态管理
-- 样式修改
+- ios 只播放一次音频的问题
+- 样式修改,优化 SliderRow 不跟手
 - 拍号
 - 暗黑模式
 - iOS App Clip
 - 动画优化
+
+# 运行
+
+flutter pub get
+
+flutter run
+
+## 修改 mobx 文件,开启监听自动生成 .g 文件
+flutter packages pub run build_runner watch --delete-conflicting-outputs
 
 # 常见问题
 

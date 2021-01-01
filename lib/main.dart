@@ -4,14 +4,23 @@ import 'package:assets_audio_player/assets_audio_player.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:metronomelutter/config/config.dart';
+import 'package:metronomelutter/global_data.dart';
+import 'package:metronomelutter/store/index.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wakelock/wakelock.dart';
 
 import './component/indactor.dart';
 import './component/slider.dart';
 import 'pages/setting.dart';
+import 'utils/shared_preferences.dart';
 
-void main() {
+void main() async {
+  // 确保初始化,否则访问 SharedPreferences 会报错
+  WidgetsFlutterBinding.ensureInitialized();
+
+  GlobalData.sp = await SpUtil.getInstance();
+  initSoundType();
+
   runApp(MyApp());
 }
 
@@ -38,14 +47,14 @@ class MyHomePage extends StatefulWidget {
   _MyHomePageState createState() => _MyHomePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateMixin {
+class _MyHomePageState extends State<MyHomePage>
+    with SingleTickerProviderStateMixin {
   int _bpm = 70;
   int _nowStep = -1;
   bool _isRunning = false;
   Timer timer;
   AssetsAudioPlayer assetsAudioPlayer = AssetsAudioPlayer();
   AnimationController _animationController;
-  int soundType = 0;
 
   void _setBpmHanlder(int val) {
     setState(() {
@@ -74,9 +83,11 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
 
   Future<void> _playAudio() {
     int nextStep = _nowStep + 1;
+    int soundType = appStore.soundType;
     if (nextStep % 4 == 0) {
       return assetsAudioPlayer.open(Audio('assets/metronome$soundType-1.mp3'));
     } else {
+      // todo 不这样 ios 只播放一次
       return assetsAudioPlayer.open(Audio('assets/metronome$soundType-2.mp3'));
     }
   }
@@ -101,24 +112,15 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
     }
   }
 
-  Future setSoundType() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    int soundType = prefs.getInt('sound');
-    if (soundType != null) {
-      print('get sound type $soundType');
-      this.soundType = soundType;
-    }
-  }
-
   @override
   void initState() {
     super.initState();
     if (!kIsWeb) {
       Wakelock.enable();
     }
-    setSoundType();
     setBpm();
-    _animationController = AnimationController(vsync: this, duration: Duration(milliseconds: 300));
+    _animationController =
+        AnimationController(vsync: this, duration: Duration(milliseconds: 300));
   }
 
   @override
@@ -143,9 +145,9 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                     icon: Icon(Icons.settings),
                     color: Theme.of(context).textTheme.headline3.color,
                     onPressed: () async {
-                      final result = await Navigator.push(context, MaterialPageRoute(builder: (context) => Setting()));
+                      final result = await Navigator.push(context,
+                          MaterialPageRoute(builder: (context) => Setting()));
                       print('setting result: $result');
-                      setSoundType();
                     },
                   )
                 ],
@@ -154,12 +156,21 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
           //   '节拍器',
           //   style: Theme.of(context).textTheme.headline3,
           // ),
-          SliderRow(_bpm, _setBpmHanlder, _isRunning, _toggleIsRunning, _animationController),
+          SliderRow(_bpm, _setBpmHanlder, _isRunning, _toggleIsRunning,
+              _animationController),
 
           IndactorRow(_nowStep),
         ],
       ),
     ) // This trailing comma makes auto-formatting nicer for build methods.
         );
+  }
+}
+
+initSoundType() {
+  int soundType = GlobalData.sp.getInt('soundType');
+  if (soundType != null) {
+    print('get sound type $soundType');
+    appStore.setSoundType(soundType);
   }
 }

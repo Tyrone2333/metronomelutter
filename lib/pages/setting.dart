@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:metronomelutter/component/about_me.dart';
+import 'package:metronomelutter/store/index.dart';
 import 'package:metronomelutter/utils/global_function.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -17,7 +18,7 @@ class Setting extends StatelessWidget {
               onTap: () async {
                 final res = await changeSound(context);
                 if (res != null) {
-                  _setSoundType(res);
+                  appStore.setSoundType(res);
                 }
               },
             ),
@@ -94,10 +95,4 @@ Future<int> changeSound(context) async {
         );
       });
   return i;
-}
-
-_setSoundType(int soundtype) async {
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  // print('_setSoundType: $soundtype');
-  await prefs.setInt('sound', soundtype);
 }
