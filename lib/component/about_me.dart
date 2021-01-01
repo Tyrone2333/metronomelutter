@@ -13,7 +13,8 @@ class AboutMe extends StatelessWidget {
       ),
       applicationVersion: 'v1.0.0',
       applicationName: '节拍器',
-      applicationLegalese: 'Copyright© 2018-2021 en20',
+      applicationLegalese:
+          'Copyright© 2020-${DateTime.now().year} en20. All rights reserved.',
       children: <Widget>[
         // Container(
         //     margin: EdgeInsets.only(top: 20),
