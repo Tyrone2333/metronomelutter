@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:metronomelutter/config/config.dart';
 import 'package:metronomelutter/utils/global_function.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sleek_circular_slider/sleek_circular_slider.dart';
 
 class SliderRow extends StatelessWidget {
@@ -19,7 +18,6 @@ class SliderRow extends StatelessWidget {
 
   handleSliderChange(double value) {
     setBpmHandler(value.toInt());
-    _storeBpm(value.toInt());
   }
 
   handleSetBPMConfirm(text) {
@@ -39,69 +37,53 @@ class SliderRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(children: [
-      Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          GestureDetector(
-            onTap: () {
-              $confirm(
-                '',
-                context,
-                title: 'BPM',
-                customBody: TextField(
-                  controller: textController,
-                  keyboardType: TextInputType.number,
-                  // 如果你想只输入数字,需要加上这个
-                  inputFormatters: <TextInputFormatter>[
-                    FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d*')),
-                  ],
-                  decoration: InputDecoration(
-                    hintText: this.bpm.toString(),
-                    filled: true,
-                    fillColor: Colors.grey.shade50,
-                  ),
-                  onSubmitted: (text) {
-                    Navigator.of(context).pop();
-                    handleSetBPMConfirm(text);
-                  },
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceAround,
+      children: [
+        GestureDetector(
+          onTap: () {
+            $confirm(
+              '',
+              context,
+              title: 'BPM',
+              customBody: TextField(
+                controller: textController,
+                keyboardType: TextInputType.number,
+                // 如果你想只输入数字,需要加上这个
+                inputFormatters: <TextInputFormatter>[
+                  FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d*')),
+                ],
+                decoration: InputDecoration(
+                  hintText: this.bpm.toString(),
+                  filled: true,
+                  fillColor: Colors.grey.shade50,
                 ),
-                btnOkOnPress: () => handleSetBPMConfirm(textController.text),
-              );
-            },
-            child: SleekCircularSlider(
-                min: Config.BPM_MIN.toDouble(),
-                max: Config.BPM_MAX.toDouble(),
-                initialValue: this.bpm.toDouble(),
-                appearance: CircularSliderAppearance(
-                    size: 270,
-                    infoProperties: InfoProperties(
-                      modifier: (percentage) => percentage.toInt().toString(),
-                      bottomLabelText: 'BPM',
-                    ),
-                    customColors: CustomSliderColors(hideShadow: true, progressBarColors: [
-                      Color.fromARGB(255, 62, 164, 255),
-                      Color.fromARGB(255, 102, 204, 255),
-                      Color.fromARGB(255, 142, 244, 255)
-                    ])),
-                onChange: handleSliderChange),
-          ),
-        ],
-      ),
-      IconButton(
-        icon: AnimatedIcon(
-          icon: AnimatedIcons.play_pause,
-          progress: _animationController,
+                onSubmitted: (text) {
+                  Navigator.of(context).pop();
+                  handleSetBPMConfirm(text);
+                },
+              ),
+              btnOkOnPress: () => handleSetBPMConfirm(textController.text),
+            );
+          },
+          child: SleekCircularSlider(
+              min: Config.BPM_MIN.toDouble(),
+              max: Config.BPM_MAX.toDouble(),
+              initialValue: this.bpm.toDouble(),
+              appearance: CircularSliderAppearance(
+                  size: 270,
+                  infoProperties: InfoProperties(
+                    modifier: (percentage) => percentage.toInt().toString(),
+                    bottomLabelText: 'BPM',
+                  ),
+                  customColors: CustomSliderColors(hideShadow: true, progressBarColors: [
+                    Color.fromARGB(255, 62, 164, 255),
+                    Color.fromARGB(255, 102, 204, 255),
+                    Color.fromARGB(255, 142, 244, 255)
+                  ])),
+              onChange: handleSliderChange),
         ),
-        onPressed: () => toggleRunning(),
-        color: Color.fromARGB(255, 102, 204, 255),
-      )
-    ]);
+      ],
+    );
   }
-}
-
-_storeBpm(int bpm) async {
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  // print('_setSoundType: $soundtype');
-  await prefs.setInt('bpm', bpm);
 }

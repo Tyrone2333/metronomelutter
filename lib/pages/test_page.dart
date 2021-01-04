@@ -1,48 +1,33 @@
 import 'package:flutter/material.dart';
 
-class CustomAboutDialog extends StatelessWidget {
+class CustomGridView extends StatelessWidget {
+  final data = List.generate(128, (i) => Color(0xFFFF00FF - 2 * i));
+
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: <Widget>[
-        _buildAboutDialog(),
-        Positioned(top: 50, right: 20, child: _buildRaisedButton(context)),
-      ],
+    return Container(
+      height: 200,
+      child: GridView.count(
+        crossAxisCount: 4,
+        mainAxisSpacing: 2,
+        crossAxisSpacing: 2,
+        childAspectRatio: 1 / 0.618,
+        children: data.map((color) => _buildItem(color)).toList(),
+      ),
     );
   }
 
-  Widget _buildRaisedButton(BuildContext context) => RaisedButton(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(10))),
-        color: Colors.blue,
-        onPressed: () {
-          showDialog(context: context, builder: (ctx) => _buildAboutDialog());
-        },
+  Container _buildItem(Color color) => Container(
+        alignment: Alignment.center,
+        width: 100,
+        height: 30,
+        color: color,
         child: Text(
-          'Just Show It',
-          style: TextStyle(color: Colors.white),
+          colorString(color),
+          style: TextStyle(
+              color: Colors.white, shadows: [Shadow(color: Colors.black, offset: Offset(.5, .5), blurRadius: 2)]),
         ),
       );
 
-  AboutDialog _buildAboutDialog() {
-    return AboutDialog(
-      applicationIcon: FlutterLogo(),
-      applicationVersion: 'v1.0.0',
-      applicationName: '嗷嗷',
-      applicationLegalese: 'Copyright© 2018-2020 张风捷特烈',
-      children: <Widget>[
-        Container(
-            margin: EdgeInsets.only(top: 20), width: 80, height: 80, child: Image.asset('assets/images/icon_head.png')),
-        Container(
-            margin: EdgeInsets.only(top: 10),
-            alignment: Alignment.center,
-            child: Text(
-              'The King Of Coder.',
-              style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 20,
-                  shadows: [Shadow(color: Colors.blue, offset: Offset(.5, .5), blurRadius: 3)]),
-            ))
-      ],
-    );
-  }
+  String colorString(Color color) => "#${color.value.toRadixString(16).padLeft(8, '0').toUpperCase()}";
 }

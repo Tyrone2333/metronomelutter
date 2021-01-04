@@ -1,7 +1,9 @@
 import 'dart:async';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:metronomelutter/component/game_audio.dart';
 import 'package:metronomelutter/config/config.dart';
 import 'package:metronomelutter/global_data.dart';
@@ -10,7 +12,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wakelock/wakelock.dart';
 
 import './component/indactor.dart';
-import './component/slider.dart';
+import 'component/slider.dart';
 import 'pages/setting.dart';
 import 'utils/shared_preferences.dart';
 
@@ -47,8 +49,7 @@ class MyHomePage extends StatefulWidget {
   _MyHomePageState createState() => _MyHomePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage>
-    with SingleTickerProviderStateMixin {
+class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateMixin {
   int _bpm = 70;
   int _nowStep = -1;
   bool _isRunning = false;
@@ -85,7 +86,7 @@ class _MyHomePageState extends State<MyHomePage>
   Future<void> _playAudio() {
     int nextStep = _nowStep + 1;
     int soundType = appStore.soundType;
-    if (nextStep % 4 == 0) {
+    if (nextStep % appStore.beat == 0) {
       return myAudio.play('metronome$soundType-1.mp3');
     } else {
       return myAudio.play('metronome$soundType-2.mp3');
@@ -119,8 +120,7 @@ class _MyHomePageState extends State<MyHomePage>
       Wakelock.enable();
     }
     setBpm();
-    _animationController =
-        AnimationController(vsync: this, duration: Duration(milliseconds: 300));
+    _animationController = AnimationController(vsync: this, duration: Duration(milliseconds: 300));
     myAudio.init();
   }
 
@@ -133,35 +133,92 @@ class _MyHomePageState extends State<MyHomePage>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: <Widget>[
-          Container(
-              padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  IconButton(
-                    icon: Icon(Icons.settings),
-                    color: Theme.of(context).textTheme.headline3.color,
-                    onPressed: () async {
-                      final result = await Navigator.push(context,
-                          MaterialPageRoute(builder: (context) => Setting()));
-                      print('setting result: $result');
-                    },
-                  )
-                ],
-              )),
-          // Text(
-          //   '节拍器',
-          //   style: Theme.of(context).textTheme.headline3,
-          // ),
-          SliderRow(_bpm, _setBpmHanlder, _isRunning, _toggleIsRunning,
-              _animationController),
+        body: Observer(
+      builder: (_) => Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: <Widget>[
+            Container(
+                padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    IconButton(
+                      icon: Icon(Icons.settings),
+                      color: Theme.of(context).textTheme.headline3.color,
+                      onPressed: () async {
+                        final result =
+                            await Navigator.push(context, MaterialPageRoute(builder: (context) => Setting()));
+                        print('setting result: $result');
+                      },
+                    )
+                  ],
+                )),
+            // Text(
+            //   '节拍器',
+            //   style: Theme.of(context).textTheme.headline3,
+            // ),
 
-          IndactorRow(_nowStep),
-        ],
+            SliderRow(_bpm, _setBpmHanlder, _isRunning, _toggleIsRunning, _animationController),
+
+            // 小点
+            IndactorRow(_nowStep, appStore.beat),
+
+            // 底部控制区
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                // 开始/暂停
+                IconButton(
+                  icon: AnimatedIcon(
+                    icon: AnimatedIcons.play_pause,
+                    progress: _animationController,
+                  ),
+                  onPressed: _toggleIsRunning,
+                  color: Color.fromARGB(255, 102, 204, 255),
+                ),
+                // 拍号
+                GestureDetector(
+                  onTap: () {
+                    print(333);
+                    appStore.setBeat(appStore.beat == 8 ? 4 : 8);
+                  },
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(120),
+                    child: Container(
+                      color: Color.fromARGB(255, 102, 204, 255),
+                      width: 50,
+                      height: 50,
+                      child: Center(
+                        child: RichText(
+                          textAlign: TextAlign.center,
+                          maxLines: 1,
+                          // overflow: TextOverflow.ellipsis,
+                          textScaleFactor: MediaQuery.of(context).textScaleFactor,
+                          text: TextSpan(
+                            style: TextStyle(color: Colors.white, fontSize: 16.0, height: 1),
+                            children: [
+                              TextSpan(text: appStore.beat.toString()),
+                              TextSpan(text: '/'),
+                              TextSpan(text: appStore.note.toString()),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+
+            // 为了让底部留出空间
+            SizedBox(
+              height: 0,
+            ),
+            // TimeSignature(appStore.beat, appStore.note),
+          ],
+        ),
       ),
     ) // This trailing comma makes auto-formatting nicer for build methods.
         );

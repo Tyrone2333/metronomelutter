@@ -24,6 +24,36 @@ mixin _$MetronomeStore on _MetronomeStore, Store {
     });
   }
 
+  final _$beatAtom = Atom(name: '_MetronomeStore.beat');
+
+  @override
+  int get beat {
+    _$beatAtom.reportRead();
+    return super.beat;
+  }
+
+  @override
+  set beat(int value) {
+    _$beatAtom.reportWrite(value, super.beat, () {
+      super.beat = value;
+    });
+  }
+
+  final _$noteAtom = Atom(name: '_MetronomeStore.note');
+
+  @override
+  int get note {
+    _$noteAtom.reportRead();
+    return super.note;
+  }
+
+  @override
+  set note(int value) {
+    _$noteAtom.reportWrite(value, super.note, () {
+      super.note = value;
+    });
+  }
+
   final _$_MetronomeStoreActionController =
       ActionController(name: '_MetronomeStore');
 
@@ -39,9 +69,22 @@ mixin _$MetronomeStore on _MetronomeStore, Store {
   }
 
   @override
+  void setBeat(dynamic payload) {
+    final _$actionInfo = _$_MetronomeStoreActionController.startAction(
+        name: '_MetronomeStore.setBeat');
+    try {
+      return super.setBeat(payload);
+    } finally {
+      _$_MetronomeStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
   String toString() {
     return '''
-soundType: ${soundType}
+soundType: ${soundType},
+beat: ${beat},
+note: ${note}
     ''';
   }
 }
