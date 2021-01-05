@@ -8,11 +8,13 @@ import 'package:metronomelutter/component/game_audio.dart';
 import 'package:metronomelutter/config/config.dart';
 import 'package:metronomelutter/global_data.dart';
 import 'package:metronomelutter/store/index.dart';
+import 'package:metronomelutter/utils/global_function.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wakelock/wakelock.dart';
 
 import './component/indactor.dart';
 import 'component/slider.dart';
+import 'component/stepper.dart';
 import 'pages/setting.dart';
 import 'utils/shared_preferences.dart';
 
@@ -36,14 +38,13 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: MyHomePage(title: '节拍器'),
+      home: MyHomePage(),
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
-  MyHomePage({Key key, this.title}) : super(key: key);
-  final String title;
+  MyHomePage({Key key}) : super(key: key);
 
   @override
   _MyHomePageState createState() => _MyHomePageState();
@@ -169,6 +170,16 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
+                IconButton(
+                  icon: Icon(
+                    Icons.music_note,
+                  ),
+                  onPressed: () {
+                    $warn('todo');
+                  },
+                  color: Color.fromARGB(255, 102, 204, 255),
+                ),
+
                 // 开始/暂停
                 IconButton(
                   icon: AnimatedIcon(
@@ -181,8 +192,51 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                 // 拍号
                 GestureDetector(
                   onTap: () {
-                    print(333);
-                    appStore.setBeat(appStore.beat == 8 ? 4 : 8);
+                    showModalBottomSheet(
+                        backgroundColor: Colors.white,
+                        context: context,
+                        builder: (BuildContext bc) {
+                          return Observer(
+                            builder: (_) => Container(
+                              // 2排 高度 + 分割线高度
+                              height: (63 * 2 + 16).toDouble(),
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 20),
+                                child: Column(
+                                  children: [
+                                    SyStepper(
+                                      value: appStore.beat,
+                                      step: 1,
+                                      iconSize: 42,
+                                      textSize: 54,
+                                      onChange: (b) {
+                                        appStore.setBeat(b);
+                                      },
+                                    ),
+                                    Divider(
+                                      color: Color(0xffcccccc),
+                                    ),
+                                    SyStepper(
+                                      value: appStore.note,
+                                      step: 1,
+                                      iconSize: 42,
+                                      textSize: 54,
+                                      min: Config.NOTE_MIN,
+                                      max: Config.NOTE_MAX,
+                                      manualControl: (type, nowValue) {
+                                        if (type == StepperEventType.increase) {
+                                          appStore.noteIncrease();
+                                        } else {
+                                          appStore.noteDecrease();
+                                        }
+                                      },
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          );
+                        });
                   },
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(120),

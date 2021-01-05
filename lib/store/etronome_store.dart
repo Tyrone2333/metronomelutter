@@ -1,3 +1,4 @@
+import 'package:metronomelutter/config/config.dart';
 import 'package:metronomelutter/global_data.dart';
 import 'package:mobx/mobx.dart';
 
@@ -15,10 +16,11 @@ abstract class _MetronomeStore with Store {
   // 拍号相关
   // 每小节 4 拍
   @observable
-  int beat = 4;
+  int beat = Config.BEAT_DEFAULT;
+
   // 单位拍,以四分音符为一拍
   @observable
-  int note = 4;
+  int note = Config.NOTE_DEFAULT;
 
   @action
   void setSoundType(payload) {
@@ -28,7 +30,31 @@ abstract class _MetronomeStore with Store {
 
   @action
   void setBeat(payload) {
-    beat = payload;
+    if (payload < Config.BEAT_MIN) {
+      beat = Config.BEAT_MIN;
+    } else if (payload > Config.BEAT_MAX) {
+      beat = Config.BEAT_MAX;
+    } else {
+      beat = payload;
+    }
     GlobalData.sp.putInt('beat', payload);
+  }
+
+  @action
+  void noteIncrease() {
+    if (note < Config.NOTE_MAX) {
+      note = note * 2;
+    }
+
+    GlobalData.sp.putInt('note', note);
+  }
+
+  @action
+  void noteDecrease() {
+    if (note > Config.NOTE_MIN) {
+      note = note ~/ 2;
+    }
+
+    GlobalData.sp.putInt('note', note);
   }
 }

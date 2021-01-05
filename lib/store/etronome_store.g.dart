@@ -80,6 +80,28 @@ mixin _$MetronomeStore on _MetronomeStore, Store {
   }
 
   @override
+  void noteIncrease() {
+    final _$actionInfo = _$_MetronomeStoreActionController.startAction(
+        name: '_MetronomeStore.noteIncrease');
+    try {
+      return super.noteIncrease();
+    } finally {
+      _$_MetronomeStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
+  void noteDecrease() {
+    final _$actionInfo = _$_MetronomeStoreActionController.startAction(
+        name: '_MetronomeStore.noteDecrease');
+    try {
+      return super.noteDecrease();
+    } finally {
+      _$_MetronomeStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
   String toString() {
     return '''
 soundType: ${soundType},
