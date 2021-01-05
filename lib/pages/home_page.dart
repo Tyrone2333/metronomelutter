@@ -30,6 +30,77 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
   Timer timer;
   AnimationController _animationController;
   GameAudio myAudio = GameAudio(1);
+  @override
+  void initState() {
+    super.initState();
+    if (!kIsWeb) {
+      Wakelock.enable();
+    }
+    setBpm();
+    _animationController = AnimationController(vsync: this, duration: Duration(milliseconds: 300));
+    myAudio.init();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _animationController.dispose();
+  }
+
+  showBeatSetting() {
+    showModalBottomSheet(
+        backgroundColor: Colors.white,
+        context: context,
+        builder: (BuildContext bc) {
+          return Observer(
+            builder: (_) => Container(
+              // 2排 高度 + 分割线高度
+              height: (63 * 2 + 16).toDouble(),
+
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    SyStepper(
+                      value: appStore.beat,
+                      step: 1,
+                      iconSize: 24,
+                      textSize: 36,
+                      min: Config.BEAT_MIN,
+                      max: Config.BEAT_MAX,
+                      onChange: (b) {
+                        appStore.setBeat(b);
+                      },
+                    ),
+                    Divider(
+                      color: Color(0xffcccccc),
+                    ),
+                    SyStepper(
+                      value: appStore.note,
+                      step: 1,
+                      iconSize: 24,
+                      textSize: 36,
+                      min: Config.NOTE_MIN,
+                      max: Config.NOTE_MAX,
+                      manualControl: (type, nowValue) {
+                        if (type == StepperEventType.increase) {
+                          appStore.noteIncrease();
+                        } else {
+                          appStore.noteDecrease();
+                        }
+                      },
+                      // 无用,为了能正常显示 不可用状态
+                      onChange: (i) {},
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+        });
+  }
 
   void _setBpmHanlder(int val) {
     setState(() {
@@ -88,23 +159,6 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
   }
 
   @override
-  void initState() {
-    super.initState();
-    if (!kIsWeb) {
-      Wakelock.enable();
-    }
-    setBpm();
-    _animationController = AnimationController(vsync: this, duration: Duration(milliseconds: 300));
-    myAudio.init();
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-    _animationController.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
         body: Observer(
@@ -112,6 +166,7 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[
+            // 顶部工具栏
             Container(
                 padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
                 child: Row(
@@ -164,60 +219,7 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                 ),
                 // 拍号
                 GestureDetector(
-                  onTap: () {
-                    showModalBottomSheet(
-                        backgroundColor: Colors.white,
-                        context: context,
-                        builder: (BuildContext bc) {
-                          return Observer(
-                            builder: (_) => Container(
-                              // 2排 高度 + 分割线高度
-                              height: (63 * 2 + 16).toDouble(),
-
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 20),
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    SyStepper(
-                                      value: appStore.beat,
-                                      step: 1,
-                                      iconSize: 24,
-                                      textSize: 36,
-                                      min: Config.BEAT_MIN,
-                                      max: Config.BEAT_MAX,
-                                      onChange: (b) {
-                                        appStore.setBeat(b);
-                                      },
-                                    ),
-                                    Divider(
-                                      color: Color(0xffcccccc),
-                                    ),
-                                    SyStepper(
-                                      value: appStore.note,
-                                      step: 1,
-                                      iconSize: 24,
-                                      textSize: 36,
-                                      min: Config.NOTE_MIN,
-                                      max: Config.NOTE_MAX,
-                                      manualControl: (type, nowValue) {
-                                        if (type == StepperEventType.increase) {
-                                          appStore.noteIncrease();
-                                        } else {
-                                          appStore.noteDecrease();
-                                        }
-                                      },
-                                      // 无用,为了能正常显示 不可用状态
-                                      onChange: (i) {},
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          );
-                        });
-                  },
+                  onTap: showBeatSetting,
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(120),
                     child: Container(
