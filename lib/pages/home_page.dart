@@ -173,15 +173,20 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                             builder: (_) => Container(
                               // 2排 高度 + 分割线高度
                               height: (63 * 2 + 16).toDouble(),
-                              child: Padding(
+
+                              child: Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 20),
                                 child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
                                   children: [
                                     SyStepper(
                                       value: appStore.beat,
                                       step: 1,
-                                      iconSize: 42,
-                                      textSize: 54,
+                                      iconSize: 24,
+                                      textSize: 36,
+                                      min: Config.BEAT_MIN,
+                                      max: Config.BEAT_MAX,
                                       onChange: (b) {
                                         appStore.setBeat(b);
                                       },
@@ -192,8 +197,8 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                                     SyStepper(
                                       value: appStore.note,
                                       step: 1,
-                                      iconSize: 42,
-                                      textSize: 54,
+                                      iconSize: 24,
+                                      textSize: 36,
                                       min: Config.NOTE_MIN,
                                       max: Config.NOTE_MAX,
                                       manualControl: (type, nowValue) {
@@ -203,6 +208,8 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                                           appStore.noteDecrease();
                                         }
                                       },
+                                      // 无用,为了能正常显示 不可用状态
+                                      onChange: (i) {},
                                     ),
                                   ],
                                 ),
