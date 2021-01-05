@@ -21,6 +21,8 @@ flutter pub get
 
 flutter run
 
+flutter build apk && start build\app\outputs\apk\release
+
 ## 修改 mobx 文件,开启监听自动生成 .g 文件
 flutter packages pub run build_runner watch --delete-conflicting-outputs
 

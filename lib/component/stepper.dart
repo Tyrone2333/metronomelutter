@@ -45,6 +45,7 @@ class SyStepper extends StatelessWidget {
             child: Icon(
               Icons.remove,
               size: this.iconSize,
+              // todo 适配 dark
               color: minusBtnDisabled ? Color.fromRGBO(222, 222, 222, 1) : Color.fromRGBO(150, 150, 150, 1),
             ),
           ),

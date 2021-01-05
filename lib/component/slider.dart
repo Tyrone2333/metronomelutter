@@ -56,7 +56,7 @@ class SliderRow extends StatelessWidget {
                 decoration: InputDecoration(
                   hintText: this.bpm.toString(),
                   filled: true,
-                  fillColor: Colors.grey.shade50,
+                  // fillColor: Colors.grey.shade50,
                 ),
                 onSubmitted: (text) {
                   Navigator.of(context).pop();
@@ -75,11 +75,15 @@ class SliderRow extends StatelessWidget {
                   infoProperties: InfoProperties(
                     modifier: (percentage) => percentage.toInt().toString(),
                     bottomLabelText: 'BPM',
+                    mainLabelStyle: TextStyle(
+                      color: Theme.of(context).textTheme.headline6.color,
+                      fontSize: 52,
+                    ),
                   ),
                   customColors: CustomSliderColors(hideShadow: true, progressBarColors: [
                     Color.fromARGB(255, 62, 164, 255),
                     Color.fromARGB(255, 102, 204, 255),
-                    Color.fromARGB(255, 142, 244, 255)
+                    Color.fromARGB(255, 142, 244, 255),
                   ])),
               onChange: handleSliderChange),
         ),

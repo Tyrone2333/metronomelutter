@@ -25,7 +25,7 @@ class IndactorRow extends StatelessWidget {
                       decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(100),
                           color: this.nowStep > -1 && (this.nowStep % steps.length) == entry.key
-                              ? Color.fromARGB(255, 102, 204, 255)
+                              ? Theme.of(context).accentColor
                               : Colors.grey[300]),
                     ))
                 .toList()),
@@ -54,7 +54,7 @@ class IndactorRow extends StatelessWidget {
               decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(100),
                   color: this.nowStep > -1 && (this.nowStep % steps.length) == index
-                      ? Color.fromARGB(255, 102, 204, 255)
+                      ? Theme.of(context).accentColor
                       : Colors.grey[300]),
             ),
           );

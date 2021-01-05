@@ -23,9 +23,17 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: '节拍器',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
-        visualDensity: VisualDensity.adaptivePlatformDensity,
+        brightness: Brightness.light,
+        accentColor: Colors.blue,
+        inputDecorationTheme: Theme.of(context).inputDecorationTheme.copyWith(
+              fillColor: Colors.grey.shade50,
+            ),
       ),
+      darkTheme: ThemeData(
+        brightness: Brightness.dark,
+        accentColor: Colors.blueGrey,
+      ),
+      themeMode: ThemeMode.system,
       home: MyHomePage(),
     );
   }

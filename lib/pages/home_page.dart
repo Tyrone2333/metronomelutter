@@ -205,7 +205,7 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                   onPressed: () {
                     $warn('todo');
                   },
-                  color: Color.fromARGB(255, 102, 204, 255),
+                  color: Theme.of(context).accentColor,
                 ),
 
                 // 开始/暂停
@@ -215,7 +215,7 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                     progress: _animationController,
                   ),
                   onPressed: _toggleIsRunning,
-                  color: Color.fromARGB(255, 102, 204, 255),
+                  color: Theme.of(context).accentColor,
                 ),
                 // 拍号
                 GestureDetector(
@@ -223,7 +223,7 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(120),
                     child: Container(
-                      color: Color.fromARGB(255, 102, 204, 255),
+                      color: Theme.of(context).accentColor,
                       width: 50,
                       height: 50,
                       child: Center(
