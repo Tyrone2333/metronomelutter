@@ -31,7 +31,7 @@ class MyApp extends StatelessWidget {
       ),
       darkTheme: ThemeData(
         brightness: Brightness.dark,
-        accentColor: Colors.blueGrey,
+        accentColor: Colors.blue,
       ),
       themeMode: ThemeMode.system,
       home: MyHomePage(),

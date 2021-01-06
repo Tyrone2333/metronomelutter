@@ -45,8 +45,7 @@ class SyStepper extends StatelessWidget {
             child: Icon(
               Icons.remove,
               size: this.iconSize,
-              // todo 适配 dark
-              color: minusBtnDisabled ? Color.fromRGBO(222, 222, 222, 1) : Color.fromRGBO(150, 150, 150, 1),
+              color: minusBtnDisabled ? theme.disabledColor : theme.textTheme.button.color,
             ),
           ),
           onTap: minusBtnDisabled
@@ -72,7 +71,7 @@ class SyStepper extends StatelessWidget {
               value.toString(),
               style: TextStyle(
                 fontSize: this.textSize,
-                color: Color.fromRGBO(84, 84, 84, 1),
+                // color: Color.fromRGBO(84, 84, 84, 1),
               ),
             )),
             constraints: BoxConstraints(minWidth: this.iconSize),
@@ -84,7 +83,7 @@ class SyStepper extends StatelessWidget {
             child: Icon(
               Icons.add,
               size: this.iconSize,
-              color: addBtnDisabled ? Color.fromRGBO(222, 222, 222, 1) : Color.fromRGBO(150, 150, 150, 1),
+              color: addBtnDisabled ? theme.disabledColor : theme.textTheme.button.color,
             ),
           ),
           onTap: addBtnDisabled

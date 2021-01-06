@@ -30,6 +30,7 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
   Timer timer;
   AnimationController _animationController;
   GameAudio myAudio = GameAudio(1);
+
   @override
   void initState() {
     super.initState();
@@ -39,6 +40,9 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
     setBpm();
     _animationController = AnimationController(vsync: this, duration: Duration(milliseconds: 300));
     myAudio.init();
+    // Timer(Duration(milliseconds: 1000), () {
+    //   showBeatSetting();
+    // });
   }
 
   @override
@@ -49,7 +53,7 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
 
   showBeatSetting() {
     showModalBottomSheet(
-        backgroundColor: Colors.white,
+        backgroundColor: Theme.of(context).colorScheme.surface,
         context: context,
         builder: (BuildContext bc) {
           return Observer(
@@ -75,8 +79,8 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                       },
                     ),
                     Divider(
-                      color: Color(0xffcccccc),
-                    ),
+                        // color: Color(0xffcccccc),
+                        ),
                     SyStepper(
                       value: appStore.note,
                       step: 1,
