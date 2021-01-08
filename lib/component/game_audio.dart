@@ -20,8 +20,7 @@ class GameAudio {
       if (audioCaches[i].fixedPlayer.state == AudioPlayerState.PLAYING) {
         audioCaches[i].fixedPlayer.stop();
       }
-      return audioCaches[i]
-          .play(file, volume: volume, mode: PlayerMode.LOW_LATENCY);
+      return audioCaches[i].play(file, volume: volume, mode: PlayerMode.LOW_LATENCY);
     }
   }
 

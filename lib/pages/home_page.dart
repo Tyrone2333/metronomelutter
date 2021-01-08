@@ -1,5 +1,8 @@
 import 'dart:async';
+import 'dart:io';
 
+import 'package:audioplayers/audio_cache.dart';
+import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -29,8 +32,13 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
   bool _isRunning = false;
   Timer timer;
   AnimationController _animationController;
-  GameAudio myAudio = GameAudio(1);
 
+  // ios 用,防止内存泄漏
+  GameAudio myAudio = GameAudio(1);
+  // Android 用
+  AudioCache audioCache = AudioCache(
+      // prefix: 'audio/',
+      fixedPlayer: AudioPlayer());
   @override
   void initState() {
     super.initState();
@@ -136,9 +144,17 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
     int nextStep = _nowStep + 1;
     int soundType = appStore.soundType;
     if (nextStep % appStore.beat == 0) {
-      return myAudio.play('metronome$soundType-1.mp3');
+      if (Platform.isIOS) {
+        return myAudio.play('metronome$soundType-1.mp3');
+      } else {
+        return audioCache.play('metronome$soundType-1.mp3');
+      }
     } else {
-      return myAudio.play('metronome$soundType-2.mp3');
+      if (Platform.isIOS) {
+        return myAudio.play('metronome$soundType-2.mp3');
+      } else {
+        return audioCache.play('metronome$soundType-2.mp3');
+      }
     }
   }
 

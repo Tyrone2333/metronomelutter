@@ -89,7 +89,7 @@ Future<int> changeSound(context) async {
           children: <Widget>[
             buildOpt('音效一', 0),
             buildOpt('音效二', 1),
-            buildOpt('音效三', 2),
+            // buildOpt('音效三', 2),
           ],
         );
       });
