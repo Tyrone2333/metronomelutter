@@ -11,7 +11,6 @@ import 'package:metronomelutter/component/game_audio.dart';
 import 'package:metronomelutter/config/config.dart';
 import 'package:metronomelutter/store/index.dart';
 import 'package:metronomelutter/utils/global_function.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wakelock/wakelock.dart';
 
 import './setting.dart';
@@ -27,7 +26,6 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateMixin {
-  int _bpm = 70;
   int _nowStep = -1;
   bool _isRunning = false;
   Timer timer;
@@ -45,7 +43,7 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
     if (!kIsWeb) {
       Wakelock.enable();
     }
-    setBpm();
+
     _animationController = AnimationController(vsync: this, duration: Duration(milliseconds: 300));
     myAudio.init();
     // Timer(Duration(milliseconds: 1000), () {
@@ -115,9 +113,7 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
   }
 
   void _setBpmHanlder(int val) {
-    setState(() {
-      _bpm = val;
-    });
+    appStore.setBpm(val);
   }
 
   void _toggleIsRunning() {
@@ -159,23 +155,10 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
   }
 
   void runTimer() {
-    timer = Timer(Duration(milliseconds: (60 / _bpm * 1000).toInt()), () {
+    timer = Timer(Duration(milliseconds: (60 / appStore.bpm * 1000).toInt()), () {
       _playAudio().then((value) => _setNowStep());
       runTimer();
     });
-  }
-
-  Future setBpm() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    int bpm = prefs.getInt('bpm');
-    if (bpm != null) {
-      print('get bpm $bpm');
-      // 超过范围,重置回默认
-      if (bpm < Config.BPM_MIN || bpm > Config.BPM_MAX) {
-        bpm = Config.BPM_DEFAULT;
-      }
-      _setBpmHanlder(bpm);
-    }
   }
 
   @override
@@ -208,7 +191,7 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
             //   style: Theme.of(context).textTheme.headline3,
             // ),
 
-            SliderRow(_bpm, _setBpmHanlder),
+            SliderRow(appStore.bpm, _setBpmHanlder),
 
             // 小点
             IndactorRow(_nowStep, appStore.beat),

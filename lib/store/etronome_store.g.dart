@@ -9,6 +9,21 @@ part of 'etronome_store.dart';
 // ignore_for_file: non_constant_identifier_names, unnecessary_brace_in_string_interps, unnecessary_lambdas, prefer_expression_function_bodies, lines_longer_than_80_chars, avoid_as, avoid_annotating_with_dynamic
 
 mixin _$MetronomeStore on _MetronomeStore, Store {
+  final _$bpmAtom = Atom(name: '_MetronomeStore.bpm');
+
+  @override
+  int get bpm {
+    _$bpmAtom.reportRead();
+    return super.bpm;
+  }
+
+  @override
+  set bpm(int value) {
+    _$bpmAtom.reportWrite(value, super.bpm, () {
+      super.bpm = value;
+    });
+  }
+
   final _$soundTypeAtom = Atom(name: '_MetronomeStore.soundType');
 
   @override
@@ -80,6 +95,17 @@ mixin _$MetronomeStore on _MetronomeStore, Store {
   }
 
   @override
+  void setBpm(int payload) {
+    final _$actionInfo = _$_MetronomeStoreActionController.startAction(
+        name: '_MetronomeStore.setBpm');
+    try {
+      return super.setBpm(payload);
+    } finally {
+      _$_MetronomeStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
   void noteIncrease() {
     final _$actionInfo = _$_MetronomeStoreActionController.startAction(
         name: '_MetronomeStore.noteIncrease');
@@ -104,6 +130,7 @@ mixin _$MetronomeStore on _MetronomeStore, Store {
   @override
   String toString() {
     return '''
+bpm: ${bpm},
 soundType: ${soundType},
 beat: ${beat},
 note: ${note}

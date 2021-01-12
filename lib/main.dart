@@ -12,6 +12,7 @@ void main() async {
 
   GlobalData.sp = await SpUtil.getInstance();
   initSoundType();
+  initBpm();
 
   runApp(MyApp());
 }
@@ -47,5 +48,13 @@ initSoundType() {
   if (soundType != null) {
     print('get sound type $soundType');
     appStore.setSoundType(soundType);
+  }
+}
+
+initBpm() {
+  int spRes = GlobalData.sp.getInt('bpm');
+  if (spRes != null) {
+    print('get bpm $spRes');
+    appStore.setBpm(spRes);
   }
 }

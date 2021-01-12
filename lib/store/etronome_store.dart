@@ -11,6 +11,9 @@ class MetronomeStore = _MetronomeStore with _$MetronomeStore;
 // The store-class
 abstract class _MetronomeStore with Store {
   @observable
+  int bpm = 70;
+
+  @observable
   int soundType = 0;
 
   // 拍号相关
@@ -38,6 +41,18 @@ abstract class _MetronomeStore with Store {
       beat = payload;
     }
     GlobalData.sp.putInt('beat', payload);
+  }
+
+  @action
+  void setBpm(int payload) {
+    if (payload < Config.BPM_MIN) {
+      bpm = Config.BPM_MIN;
+    } else if (payload > Config.BPM_MAX) {
+      bpm = Config.BPM_MAX;
+    } else {
+      bpm = payload;
+    }
+    GlobalData.sp.putInt('bpm', payload);
   }
 
   @action
