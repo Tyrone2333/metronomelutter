@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:metronomelutter/component/about_me.dart';
 import 'package:metronomelutter/store/index.dart';
 import 'package:metronomelutter/utils/global_function.dart';
+import 'package:package_info/package_info.dart';
 
 class Setting extends StatelessWidget {
   @override
@@ -34,7 +35,15 @@ class Setting extends StatelessWidget {
               '关于',
               context,
               onTap: () async {
-                showDialog(context: context, builder: (ctx) => AboutMe());
+                PackageInfo packageInfo = await PackageInfo.fromPlatform();
+
+                String appName = packageInfo.appName;
+                String packageName = packageInfo.packageName;
+                String version = packageInfo.version;
+                String buildNumber = packageInfo.buildNumber;
+                print('正在检查版本: ---$appName---$packageName---$version---$buildNumber---');
+
+                showDialog(context: context, builder: (ctx) => AboutMe(version: version));
 
                 // $confirm(
                 //   '基于 flutter 技术打造的极简全平台节拍器', context,
