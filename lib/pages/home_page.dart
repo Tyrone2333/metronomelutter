@@ -208,7 +208,7 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
             //   style: Theme.of(context).textTheme.headline3,
             // ),
 
-            SliderRow(_bpm, _setBpmHanlder, _isRunning, _toggleIsRunning, _animationController),
+            SliderRow(_bpm, _setBpmHanlder),
 
             // 小点
             IndactorRow(_nowStep, appStore.beat),

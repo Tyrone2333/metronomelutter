@@ -22,6 +22,8 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: '节拍器',
+      // 右上角不显示 debug 横幅
+      // debugShowCheckedModeBanner: false,
       theme: ThemeData(
         brightness: Brightness.light,
         accentColor: Colors.blue,
@@ -35,6 +37,7 @@ class MyApp extends StatelessWidget {
       ),
       themeMode: ThemeMode.system,
       home: MyHomePage(),
+      // home: example01,
     );
   }
 }

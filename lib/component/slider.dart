@@ -8,11 +8,8 @@ import 'package:sleek_circular_slider/sleek_circular_slider.dart';
 class SliderRow extends StatelessWidget {
   final int bpm;
   final Function setBpmHandler;
-  final bool isRunning;
-  final Function toggleRunning;
-  final AnimationController _animationController;
 
-  SliderRow(this.bpm, this.setBpmHandler, this.isRunning, this.toggleRunning, this._animationController);
+  SliderRow(this.bpm, this.setBpmHandler, {Key key}) : super(key: key);
 
   final textController = new TextEditingController();
 
@@ -67,25 +64,32 @@ class SliderRow extends StatelessWidget {
             );
           },
           child: SleekCircularSlider(
-              min: Config.BPM_MIN.toDouble(),
-              max: Config.BPM_MAX.toDouble(),
-              initialValue: this.bpm.toDouble(),
-              appearance: CircularSliderAppearance(
-                  size: 270,
-                  infoProperties: InfoProperties(
-                    modifier: (percentage) => percentage.toInt().toString(),
-                    bottomLabelText: 'BPM',
-                    mainLabelStyle: TextStyle(
-                      color: Theme.of(context).textTheme.headline6.color,
-                      fontSize: 52,
-                    ),
+            min: Config.BPM_MIN.toDouble(),
+            max: Config.BPM_MAX.toDouble(),
+            initialValue: this.bpm.toDouble(),
+            appearance: CircularSliderAppearance(
+                // animationEnabled: false,
+                size: 270,
+                infoProperties: InfoProperties(
+                  modifier: (percentage) => percentage.toInt().toString(),
+                  bottomLabelText: 'BPM',
+                  mainLabelStyle: TextStyle(
+                    color: Theme.of(context).textTheme.headline6.color,
+                    fontSize: 52,
                   ),
-                  customColors: CustomSliderColors(hideShadow: true, progressBarColors: [
-                    Color.fromARGB(255, 62, 164, 255),
-                    Color.fromARGB(255, 102, 204, 255),
-                    Color.fromARGB(255, 142, 244, 255),
-                  ])),
-              onChange: handleSliderChange),
+                ),
+                customColors: CustomSliderColors(hideShadow: true, progressBarColors: [
+                  Color.fromARGB(255, 62, 164, 255),
+                  Color.fromARGB(255, 102, 204, 255),
+                  Color.fromARGB(255, 142, 244, 255),
+                ])),
+            // onChangeStart: (double value) {},
+            // onChangeEnd: (double value) {},
+            // onChange: (double value) {},
+            onChange: handleSliderChange,
+            // onChangeStart: handleSliderChange,
+            // onChangeEnd: handleSliderChange,
+          ),
         ),
       ],
     );
