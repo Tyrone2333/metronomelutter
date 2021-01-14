@@ -11,6 +11,7 @@ import 'package:metronomelutter/component/game_audio.dart';
 import 'package:metronomelutter/config/config.dart';
 import 'package:metronomelutter/store/index.dart';
 import 'package:metronomelutter/utils/global_function.dart';
+import 'package:quick_actions/quick_actions.dart';
 import 'package:wakelock/wakelock.dart';
 
 import './setting.dart';
@@ -37,9 +38,35 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
   AudioCache audioCache = AudioCache(
       // prefix: 'audio/',
       fixedPlayer: AudioPlayer());
+  String shortcut = "no action set";
+
   @override
   void initState() {
     super.initState();
+    // 设定桌面图标长按 BEGIN
+    final QuickActions quickActions = QuickActions();
+    quickActions.initialize((String shortcutType) {
+      setState(() {
+        if (shortcutType != null) {
+          shortcut = shortcutType;
+          _toggleIsRunning();
+        }
+      });
+    });
+    quickActions.setShortcutItems(<ShortcutItem>[
+      // NOTE: This first action icon will only work on iOS.
+      // In a real world project keep the same file name for both platforms.
+      const ShortcutItem(
+        type: 'start',
+        localizedTitle: '开始',
+        icon: 'play',
+      ),
+      // NOTE: This second action icon will only work on Android.
+      // In a real world project keep the same file name for both platforms.
+      // const ShortcutItem(type: 'action_two', localizedTitle: '播放 Action two', icon: 'ic_launcher'),
+    ]);
+    // 设定桌面图标长按 END
+
     if (!kIsWeb) {
       Wakelock.enable();
     }
