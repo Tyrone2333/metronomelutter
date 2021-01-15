@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:metronomelutter/component/about_me.dart';
+import 'package:metronomelutter/component/change_sound.dart';
 import 'package:metronomelutter/store/index.dart';
 import 'package:metronomelutter/utils/global_function.dart';
 import 'package:package_info/package_info.dart';
@@ -43,7 +44,7 @@ class Setting extends StatelessWidget {
                 String buildNumber = packageInfo.buildNumber;
                 print('正在检查版本: ---$appName---$packageName---$version---$buildNumber---');
 
-                showDialog(context: context, builder: (ctx) => AboutMe(version: version));
+                showDialog(context: context, builder: (ctx) => AboutMe(version: 'v$version+$buildNumber'));
 
                 // $confirm(
                 //   '基于 flutter 技术打造的极简全平台节拍器', context,
@@ -74,33 +75,4 @@ class Setting extends StatelessWidget {
       onTap: onTap,
     );
   }
-}
-
-Future<int> changeSound(context) async {
-  buildOpt(String name, val) {
-    return SimpleDialogOption(
-      onPressed: () {
-        // 返回1
-        Navigator.pop(context, val);
-      },
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 6),
-        child: Text(name),
-      ),
-    );
-  }
-
-  int i = await showDialog<int>(
-      context: context,
-      builder: (BuildContext context) {
-        return SimpleDialog(
-          title: const Text('请选择音效'),
-          children: <Widget>[
-            buildOpt('音效一', 0),
-            buildOpt('音效二', 1),
-            // buildOpt('音效三', 2),
-          ],
-        );
-      });
-  return i;
 }

@@ -17,7 +17,7 @@ class AboutMe extends StatelessWidget {
         width: iconSize,
         height: iconSize,
       ),
-      applicationVersion: 'v$version',
+      applicationVersion: '$version',
       applicationName: '节拍器',
       applicationLegalese: 'Copyright© 2020-${DateTime.now().year} en20. All rights reserved.',
       children: <Widget>[

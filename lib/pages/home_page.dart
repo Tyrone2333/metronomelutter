@@ -7,10 +7,10 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:metronomelutter/component/change_sound.dart';
 import 'package:metronomelutter/component/game_audio.dart';
 import 'package:metronomelutter/config/config.dart';
 import 'package:metronomelutter/store/index.dart';
-import 'package:metronomelutter/utils/global_function.dart';
 import 'package:quick_actions/quick_actions.dart';
 import 'package:wakelock/wakelock.dart';
 
@@ -168,15 +168,15 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
     int soundType = appStore.soundType;
     if (nextStep % appStore.beat == 0) {
       if (Platform.isIOS) {
-        return myAudio.play('metronome$soundType-1.mp3');
+        return myAudio.play('metronome$soundType-1.wav');
       } else {
-        return audioCache.play('metronome$soundType-1.mp3');
+        return audioCache.play('metronome$soundType-1.wav');
       }
     } else {
       if (Platform.isIOS) {
-        return myAudio.play('metronome$soundType-2.mp3');
+        return myAudio.play('metronome$soundType-2.wav');
       } else {
-        return audioCache.play('metronome$soundType-2.mp3');
+        return audioCache.play('metronome$soundType-2.wav');
       }
     }
   }
@@ -232,8 +232,11 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                   icon: Icon(
                     Icons.music_note,
                   ),
-                  onPressed: () {
-                    $warn('todo');
+                  onPressed: () async {
+                    final res = await changeSound(context);
+                    if (res != null) {
+                      appStore.setSoundType(res);
+                    }
                   },
                   color: Theme.of(context).accentColor,
                 ),
