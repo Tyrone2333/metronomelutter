@@ -63,6 +63,15 @@ android {
             signingConfig signingConfigs.release
         }
     }
+    android.applicationVariants.all { variant ->
+        variant.outputs.all {
+            if(outputFileName.contains('release')){
+                def formattedDate = new Date().format('yyyyMMdd-HHmmss')
+
+                outputFileName = "${applicationId}_v${versionName}(${versionCode})_${formattedDate}.apk"
+            }
+        }
+    }
 }
 
 flutter {

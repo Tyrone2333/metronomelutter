@@ -9,7 +9,6 @@
 ![preview](./screenshot/preview.png)
 # TODO
 - 高 bpm 声音准确性?
-- App Shortcuts (quick_actions)
 - iOS App Clip
 - 样式修改,优化 SliderRow 不跟手
 # 运行
