@@ -56,6 +56,7 @@ class SliderRow extends StatelessWidget {
                   // fillColor: Colors.grey.shade50,
                 ),
                 onSubmitted: (text) {
+                  // todo 失败了不关闭弹窗
                   Navigator.of(context).pop();
                   handleSetBPMConfirm(text);
                 },

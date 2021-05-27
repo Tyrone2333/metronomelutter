@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart' as foundation;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_progress_dialog/flutter_progress_dialog.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -52,7 +52,7 @@ Future<void> $confirm(
                 ),
         ),
         actions: <Widget>[
-          FlatButton(
+          TextButton(
             child: Text(confirmText),
             onPressed: () {
               Navigator.of(context).pop();
@@ -62,7 +62,7 @@ Future<void> $confirm(
               }
             },
           ),
-          FlatButton(
+          TextButton(
             child: Text(
               cancelText,
 //              style: TextStyle(
@@ -119,11 +119,11 @@ $loading(context,
 
     /// 可能会有打开后没触发关闭的地方,默认开启超时关闭防止页面 loading 停留过久
     closedTimeout = 3}) {
-  showProgressDialog(
-    context: context,
-    orientation: ProgressOrientation.vertical,
-    loadingText: title,
-  );
+  // 设置样式
+  EasyLoading.instance
+    ..indicatorType = EasyLoadingIndicatorType.ring;
+
+  EasyLoading.show(status: title);
 
 //  超过预期时间仍未关闭 loading
   if (_loadingClosedTimer != null) {
@@ -135,7 +135,7 @@ $loading(context,
 }
 
 $loadingHide() {
-  dismissProgressDialog();
+  EasyLoading.dismiss();
 }
 
 /// 和 js 的 setTimeout 一样
