@@ -34,11 +34,15 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
 
   // ios 用,防止内存泄漏
   GameAudio myAudio = GameAudio(1);
+
   // Android 用
   AudioCache audioCache = AudioCache(
       // prefix: 'audio/',
       fixedPlayer: AudioPlayer());
   String shortcut = "no action set";
+
+  var last = new DateTime.now().millisecondsSinceEpoch;
+  var target = new DateTime.now().millisecondsSinceEpoch;
 
   @override
   void initState() {
@@ -76,6 +80,7 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
     // Timer(Duration(milliseconds: 1000), () {
     //   showBeatSetting();
     // });
+    runTimerForever();
   }
 
   @override
@@ -145,11 +150,11 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
 
   void _toggleIsRunning() {
     if (_isRunning) {
-      timer.cancel();
+      // timer.cancel();
       _animationController.reverse();
       myAudio.stop();
     } else {
-      runTimer();
+      // runTimer();
       _animationController.forward();
     }
     setState(() {
@@ -181,8 +186,36 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
     }
   }
 
+  void runTimerForever() {
+    print('_isRunning $_isRunning');
+    Timer.periodic(Duration(milliseconds: 1), (Timer t) {
+      if (_isRunning) {
+        var interval = (60 / appStore.bpm * 1000).toInt();
+        var now = new DateTime.now().millisecondsSinceEpoch;
+
+        // print('now $now target $target, interval $interval  ${now - last}');
+        // print('离目标的差值 ${target - now}');
+        if (now >= target) {
+          target = target + interval;
+
+          print('到了!!');
+          _playAudio().then((value) => _setNowStep());
+        }
+
+        last = now;
+      }
+    });
+  }
+
   void runTimer() {
-    timer = Timer(Duration(milliseconds: (60 / appStore.bpm * 1000).toInt()), () {
+    var interval = (60 / appStore.bpm * 1000).toInt();
+    var now = new DateTime.now().millisecondsSinceEpoch;
+
+    print(interval);
+
+    timer = Timer(Duration(milliseconds: interval), () {
+      var now2 = new DateTime.now().millisecondsSinceEpoch;
+      print('now $now , interval $interval  ${now2 - now}');
       _playAudio().then((value) => _setNowStep());
       runTimer();
     });
