@@ -4,7 +4,6 @@
 
 基于 flutter 技术打造的极简全平台(包括 web)节拍器,目前只是初版,后续把功能完善.
 
-不会弃坑,把这个项目列入 2021 年度计划.
 
 ![preview](./screenshot/preview.png)
 # TODO
