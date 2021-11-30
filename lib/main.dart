@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:metronomelutter/global_data.dart';
 import 'package:metronomelutter/pages/home_page.dart';
 import 'package:metronomelutter/store/index.dart';
@@ -38,6 +39,7 @@ class MyApp extends StatelessWidget {
       ),
       themeMode: ThemeMode.system,
       home: MyHomePage(),
+      builder: EasyLoading.init(),
       // home: example01,
     );
   }
