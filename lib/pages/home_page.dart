@@ -26,18 +26,28 @@ class MyHomePage extends StatefulWidget {
   _MyHomePageState createState() => _MyHomePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateMixin {
+class _MyHomePageState extends State<MyHomePage>
+    with SingleTickerProviderStateMixin {
   int _nowStep = -1;
+  int count = 0;
   bool _isRunning = false;
   Timer timer;
   AnimationController _animationController;
 
-  // ios 用,防止内存泄漏
+  // ios 用,防止内存泄漏 todo iOS 也要三个播放器
   GameAudio myAudio = GameAudio(1);
+
   // Android 用
-  AudioCache audioCache = AudioCache(
-      // prefix: 'audio/',
-      fixedPlayer: AudioPlayer());
+  // 用一个播放器会导致高 BPM 的时候节奏不均匀, 因为音频是有时长的, 上一个音频还没有播放完毕就开始播放下一个, 就会导致这种节奏不均匀的问题
+  // 两个用于播放 soundType2,另外一个用于 soundType1
+  AudioCache audioCache1 = AudioCache(fixedPlayer: AudioPlayer());
+  AudioCache audioCache2 = AudioCache(fixedPlayer: AudioPlayer());
+  AudioCache audioCache3 = AudioCache(fixedPlayer: AudioPlayer());
+  // Android 用, 存放 audioCache 返回值,用于下次播放前跳转到 0 毫秒的位置
+  AudioPlayer player1 = AudioPlayer();
+  AudioPlayer player2 = AudioPlayer();
+  AudioPlayer player3 = AudioPlayer();
+
   String shortcut = "no action set";
 
   @override
@@ -163,26 +173,38 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
     });
   }
 
-  Future<void> _playAudio() {
+  Future<void> _playAudio() async {
     int nextStep = _nowStep + 1;
     int soundType = appStore.soundType;
     if (nextStep % appStore.beat == 0) {
       if (Platform.isIOS) {
         return myAudio.play('metronome$soundType-1.wav');
       } else {
-        return audioCache.play('metronome$soundType-1.wav');
+        await player1.seek(Duration(milliseconds: 0));
+        player1 = await audioCache1.play('metronome$soundType-1.wav');
+        return;
       }
     } else {
       if (Platform.isIOS) {
         return myAudio.play('metronome$soundType-2.wav');
       } else {
-        return audioCache.play('metronome$soundType-2.wav');
+        // 交替使用播放器
+        if (count % 2 == 0) {
+          await player2.seek(Duration(milliseconds: 0));
+          player2 = await audioCache2.play('metronome$soundType-2.wav');
+          return;
+        } else {
+          await player3.seek(Duration(milliseconds: 0));
+          player3 = await audioCache3.play('metronome$soundType-2.wav');
+          return;
+        }
       }
     }
   }
 
   void runTimer() {
     timer = Timer(Duration(milliseconds: (60 / appStore.bpm * 1000).toInt()), () {
+      count++;
       _playAudio().then((value) => _setNowStep());
       runTimer();
     });
@@ -198,7 +220,8 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
           children: <Widget>[
             // 顶部工具栏
             Container(
-                padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
+                padding:
+                    EdgeInsets.only(top: MediaQuery.of(context).padding.top),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
@@ -206,8 +229,8 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                       icon: Icon(Icons.settings),
                       color: Theme.of(context).textTheme.headline3.color,
                       onPressed: () async {
-                        final result =
-                            await Navigator.push(context, MaterialPageRoute(builder: (context) => Setting()));
+                        final result = await Navigator.push(context,
+                            MaterialPageRoute(builder: (context) => Setting()));
                         print('setting result: $result');
                       },
                     )
@@ -264,9 +287,11 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                           textAlign: TextAlign.center,
                           maxLines: 1,
                           // overflow: TextOverflow.ellipsis,
-                          textScaleFactor: MediaQuery.of(context).textScaleFactor,
+                          textScaleFactor:
+                              MediaQuery.of(context).textScaleFactor,
                           text: TextSpan(
-                            style: TextStyle(color: Colors.white, fontSize: 16.0, height: 1),
+                            style: TextStyle(
+                                color: Colors.white, fontSize: 16.0, height: 1),
                             children: [
                               TextSpan(text: appStore.beat.toString()),
                               TextSpan(text: '/'),
