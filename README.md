@@ -7,6 +7,7 @@
 
 ![preview](./screenshot/preview.png)
 # TODO
+- 更新到 Flutter 3
 - 高 bpm 声音准确性?
 - iOS App Clip
 - 样式修改,优化 SliderRow 不跟手
