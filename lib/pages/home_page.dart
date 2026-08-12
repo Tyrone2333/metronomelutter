@@ -1,18 +1,14 @@
 import 'dart:async';
-import 'dart:io';
 
-import 'package:audioplayers/audio_cache.dart';
-import 'package:audioplayers/audioplayers.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:metronomelutter/component/change_sound.dart';
-import 'package:metronomelutter/component/game_audio.dart';
-import 'package:metronomelutter/config/config.dart';
-import 'package:metronomelutter/store/index.dart';
+import 'package:metronome/component/change_sound.dart';
+import 'package:metronome/component/game_audio.dart';
+import 'package:metronome/config/config.dart';
+import 'package:metronome/store/index.dart';
 import 'package:quick_actions/quick_actions.dart';
-import 'package:wakelock/wakelock.dart';
+import 'package:wakelock_plus/wakelock_plus.dart';
 
 import './setting.dart';
 import '../component/indactor.dart';
@@ -20,10 +16,10 @@ import '../component/slider.dart';
 import '../component/stepper.dart';
 
 class MyHomePage extends StatefulWidget {
-  MyHomePage({Key key}) : super(key: key);
+  const MyHomePage({super.key});
 
   @override
-  _MyHomePageState createState() => _MyHomePageState();
+  State<MyHomePage> createState() => _MyHomePageState();
 }
 
 class _MyHomePageState extends State<MyHomePage>
@@ -31,22 +27,16 @@ class _MyHomePageState extends State<MyHomePage>
   int _nowStep = -1;
   int count = 0;
   bool _isRunning = false;
-  Timer timer;
-  AnimationController _animationController;
+  Timer? timer;
+  late AnimationController _animationController;
 
-  // ios 用,防止内存泄漏 todo iOS 也要三个播放器
-  GameAudio myAudio = GameAudio(1);
+  // 用于漂移补偿的绝对时间基准
+  final Stopwatch _stopwatch = Stopwatch();
+  // 下一拍相对于 _stopwatch 起点的目标时刻(毫秒,保留小数)
+  double _nextBeatMs = 0;
 
-  // Android 用
-  // 用一个播放器会导致高 BPM 的时候节奏不均匀, 因为音频是有时长的, 上一个音频还没有播放完毕就开始播放下一个, 就会导致这种节奏不均匀的问题
-  // 两个用于播放 soundType2,另外一个用于 soundType1
-  AudioCache audioCache1 = AudioCache(fixedPlayer: AudioPlayer());
-  AudioCache audioCache2 = AudioCache(fixedPlayer: AudioPlayer());
-  AudioCache audioCache3 = AudioCache(fixedPlayer: AudioPlayer());
-  // Android 用, 存放 audioCache 返回值,用于下次播放前跳转到 0 毫秒的位置
-  AudioPlayer player1 = AudioPlayer();
-  AudioPlayer player2 = AudioPlayer();
-  AudioPlayer player3 = AudioPlayer();
+  // 音频播放器池,iOS/Android 通用。多个播放器轮流使用,避免高 BPM 时声音相互打断
+  final GameAudio myAudio = GameAudio(4);
 
   String shortcut = "no action set";
 
@@ -54,56 +44,50 @@ class _MyHomePageState extends State<MyHomePage>
   void initState() {
     super.initState();
     // 设定桌面图标长按 BEGIN
-    final QuickActions quickActions = QuickActions();
+    const QuickActions quickActions = QuickActions();
     quickActions.initialize((String shortcutType) {
       setState(() {
-        if (shortcutType != null) {
-          shortcut = shortcutType;
-          _toggleIsRunning();
-        }
+        shortcut = shortcutType;
+        _toggleIsRunning();
       });
     });
     quickActions.setShortcutItems(<ShortcutItem>[
       // NOTE: This first action icon will only work on iOS.
-      // In a real world project keep the same file name for both platforms.
       const ShortcutItem(
         type: 'start',
         localizedTitle: '开始',
         icon: 'play',
       ),
-      // NOTE: This second action icon will only work on Android.
-      // In a real world project keep the same file name for both platforms.
-      // const ShortcutItem(type: 'action_two', localizedTitle: '播放 Action two', icon: 'ic_launcher'),
     ]);
     // 设定桌面图标长按 END
 
     if (!kIsWeb) {
-      Wakelock.enable();
+      WakelockPlus.enable();
     }
 
-    _animationController = AnimationController(vsync: this, duration: Duration(milliseconds: 300));
+    _animationController = AnimationController(
+        vsync: this, duration: const Duration(milliseconds: 300));
     myAudio.init();
-    // Timer(Duration(milliseconds: 1000), () {
-    //   showBeatSetting();
-    // });
   }
 
   @override
   void dispose() {
-    super.dispose();
+    timer?.cancel();
+    _stopwatch.stop();
+    myAudio.dispose();
     _animationController.dispose();
+    super.dispose();
   }
 
-  showBeatSetting() {
+  void showBeatSetting() {
     showModalBottomSheet(
         backgroundColor: Theme.of(context).colorScheme.surface,
         context: context,
         builder: (BuildContext bc) {
           return Observer(
-            builder: (_) => Container(
+            builder: (_) => SizedBox(
               // 2排 高度 + 分割线高度
               height: (63 * 2 + 16).toDouble(),
-
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: Column(
@@ -121,9 +105,7 @@ class _MyHomePageState extends State<MyHomePage>
                         appStore.setBeat(b);
                       },
                     ),
-                    Divider(
-                        // color: Color(0xffcccccc),
-                        ),
+                    const Divider(),
                     SyStepper(
                       value: appStore.note,
                       step: 1,
@@ -155,7 +137,8 @@ class _MyHomePageState extends State<MyHomePage>
 
   void _toggleIsRunning() {
     if (_isRunning) {
-      timer.cancel();
+      timer?.cancel();
+      _stopwatch.stop();
       _animationController.reverse();
       myAudio.stop();
     } else {
@@ -177,36 +160,34 @@ class _MyHomePageState extends State<MyHomePage>
     int nextStep = _nowStep + 1;
     int soundType = appStore.soundType;
     if (nextStep % appStore.beat == 0) {
-      if (Platform.isIOS) {
-        return myAudio.play('metronome$soundType-1.wav');
-      } else {
-        await player1.seek(Duration(milliseconds: 0));
-        player1 = await audioCache1.play('metronome$soundType-1.wav');
-        return;
-      }
+      // 重音拍
+      return myAudio.play('metronome$soundType-1.wav');
     } else {
-      if (Platform.isIOS) {
-        return myAudio.play('metronome$soundType-2.wav');
-      } else {
-        // 交替使用播放器
-        if (count % 2 == 0) {
-          await player2.seek(Duration(milliseconds: 0));
-          player2 = await audioCache2.play('metronome$soundType-2.wav');
-          return;
-        } else {
-          await player3.seek(Duration(milliseconds: 0));
-          player3 = await audioCache3.play('metronome$soundType-2.wav');
-          return;
-        }
-      }
+      return myAudio.play('metronome$soundType-2.wav');
     }
   }
 
   void runTimer() {
-    timer = Timer(Duration(milliseconds: (60 / appStore.bpm * 1000).toInt()), () {
+    // 以绝对时间轴为基准,避免定时器误差累积
+    _stopwatch
+      ..reset()
+      ..start();
+    _nextBeatMs = 60 / appStore.bpm * 1000;
+    _scheduleNextBeat();
+  }
+
+  void _scheduleNextBeat() {
+    // 目标时刻减去真实已流逝时间 = 本次应等待的时长,以此补偿上一拍的漂移
+    int delay = (_nextBeatMs - _stopwatch.elapsedMilliseconds).round();
+    if (delay < 0) delay = 0;
+    timer = Timer(Duration(milliseconds: delay), () {
       count++;
-      _playAudio().then((value) => _setNowStep());
-      runTimer();
+      // 不 await 音频,避免播放延迟阻塞下一拍的排期
+      _playAudio();
+      _setNowStep();
+      // 用当前 bpm 累加目标时刻,支持运行中变速
+      _nextBeatMs += 60 / appStore.bpm * 1000;
+      _scheduleNextBeat();
     });
   }
 
@@ -226,20 +207,18 @@ class _MyHomePageState extends State<MyHomePage>
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     IconButton(
-                      icon: Icon(Icons.settings),
-                      color: Theme.of(context).textTheme.headline3.color,
+                      icon: const Icon(Icons.settings),
+                      color: Theme.of(context).textTheme.displaySmall?.color,
                       onPressed: () async {
-                        final result = await Navigator.push(context,
-                            MaterialPageRoute(builder: (context) => Setting()));
-                        print('setting result: $result');
+                        final result = await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => const Setting()));
+                        debugPrint('setting result: $result');
                       },
                     )
                   ],
                 )),
-            // Text(
-            //   '节拍器',
-            //   style: Theme.of(context).textTheme.headline3,
-            // ),
 
             SliderRow(appStore.bpm, _setBpmHanlder),
 
@@ -252,7 +231,7 @@ class _MyHomePageState extends State<MyHomePage>
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 IconButton(
-                  icon: Icon(
+                  icon: const Icon(
                     Icons.music_note,
                   ),
                   onPressed: () async {
@@ -261,7 +240,7 @@ class _MyHomePageState extends State<MyHomePage>
                       appStore.setSoundType(res);
                     }
                   },
-                  color: Theme.of(context).accentColor,
+                  color: Theme.of(context).colorScheme.secondary,
                 ),
 
                 // 开始/暂停
@@ -271,7 +250,7 @@ class _MyHomePageState extends State<MyHomePage>
                     progress: _animationController,
                   ),
                   onPressed: _toggleIsRunning,
-                  color: Theme.of(context).accentColor,
+                  color: Theme.of(context).colorScheme.secondary,
                 ),
                 // 拍号
                 GestureDetector(
@@ -279,22 +258,19 @@ class _MyHomePageState extends State<MyHomePage>
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(120),
                     child: Container(
-                      color: Theme.of(context).accentColor,
+                      color: Theme.of(context).colorScheme.secondary,
                       width: 50,
                       height: 50,
                       child: Center(
                         child: RichText(
                           textAlign: TextAlign.center,
                           maxLines: 1,
-                          // overflow: TextOverflow.ellipsis,
-                          textScaleFactor:
-                              MediaQuery.of(context).textScaleFactor,
                           text: TextSpan(
-                            style: TextStyle(
+                            style: const TextStyle(
                                 color: Colors.white, fontSize: 16.0, height: 1),
                             children: [
                               TextSpan(text: appStore.beat.toString()),
-                              TextSpan(text: '/'),
+                              const TextSpan(text: '/'),
                               TextSpan(text: appStore.note.toString()),
                             ],
                           ),
@@ -307,14 +283,12 @@ class _MyHomePageState extends State<MyHomePage>
             ),
 
             // 为了让底部留出空间
-            SizedBox(
+            const SizedBox(
               height: 0,
             ),
-            // TimeSignature(appStore.beat, appStore.note),
           ],
         ),
       ),
-    ) // This trailing comma makes auto-formatting nicer for build methods.
-        );
+    ));
   }
 }

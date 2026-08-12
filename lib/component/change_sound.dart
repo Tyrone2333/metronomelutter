@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 
-Future<int> changeSound(context) async {
-  buildOpt(String name, val) {
+Future<int?> changeSound(BuildContext context) async {
+  Widget buildOpt(String name, int val) {
     return SimpleDialogOption(
       onPressed: () {
-        // 返回1
         Navigator.pop(context, val);
       },
       child: Padding(
@@ -14,7 +13,7 @@ Future<int> changeSound(context) async {
     );
   }
 
-  int i = await showDialog<int>(
+  int? i = await showDialog<int>(
       context: context,
       builder: (BuildContext context) {
         return SimpleDialog(

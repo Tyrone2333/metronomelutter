@@ -1,34 +1,34 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:metronomelutter/config/config.dart';
-import 'package:metronomelutter/utils/global_function.dart';
+import 'package:metronome/config/config.dart';
+import 'package:metronome/utils/global_function.dart';
 import 'package:sleek_circular_slider/sleek_circular_slider.dart';
 
 class SliderRow extends StatelessWidget {
   final int bpm;
-  final Function setBpmHandler;
+  final void Function(int) setBpmHandler;
 
-  SliderRow(this.bpm, this.setBpmHandler, {Key key}) : super(key: key);
+  SliderRow(this.bpm, this.setBpmHandler, {super.key});
 
-  final textController = new TextEditingController();
+  final textController = TextEditingController();
 
-  handleSliderChange(double value) {
+  void handleSliderChange(double value) {
     setBpmHandler(value.toInt());
   }
 
-  handleSetBPMConfirm(text) {
-    var bpm;
+  void handleSetBPMConfirm(String text) {
+    double? parsed;
     try {
-      bpm = double.parse(text);
+      parsed = double.parse(text);
     } catch (e) {
-      print('转换失败 $text ');
+      debugPrint('转换失败 $text ');
     }
-    if (bpm != null) {
-      if (bpm < Config.BPM_MIN || bpm > Config.BPM_MAX) {
-        return $warn('BPM 支持 ${Config.BPM_MIN} -  ${Config.BPM_MAX}');
+    if (parsed != null) {
+      if (parsed < Config.BPM_MIN || parsed > Config.BPM_MAX) {
+        $warn('BPM 支持 ${Config.BPM_MIN} -  ${Config.BPM_MAX}');
+        return;
       }
-      handleSliderChange(bpm);
+      handleSliderChange(parsed);
     }
   }
 
@@ -51,12 +51,10 @@ class SliderRow extends StatelessWidget {
                   FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d*')),
                 ],
                 decoration: InputDecoration(
-                  hintText: this.bpm.toString(),
+                  hintText: bpm.toString(),
                   filled: true,
-                  // fillColor: Colors.grey.shade50,
                 ),
                 onSubmitted: (text) {
-                  // todo 失败了不关闭弹窗
                   Navigator.of(context).pop();
                   handleSetBPMConfirm(text);
                 },
@@ -67,29 +65,25 @@ class SliderRow extends StatelessWidget {
           child: SleekCircularSlider(
             min: Config.BPM_MIN.toDouble(),
             max: Config.BPM_MAX.toDouble(),
-            initialValue: this.bpm.toDouble(),
+            initialValue: bpm.toDouble(),
             appearance: CircularSliderAppearance(
-                // animationEnabled: false,
                 size: 270,
                 infoProperties: InfoProperties(
                   modifier: (percentage) => percentage.toInt().toString(),
                   bottomLabelText: 'BPM',
                   mainLabelStyle: TextStyle(
-                    color: Theme.of(context).textTheme.headline6.color,
+                    color: Theme.of(context).textTheme.titleLarge?.color,
                     fontSize: 52,
                   ),
                 ),
-                customColors: CustomSliderColors(hideShadow: true, progressBarColors: [
-                  Color.fromARGB(255, 62, 164, 255),
-                  Color.fromARGB(255, 102, 204, 255),
-                  Color.fromARGB(255, 142, 244, 255),
-                ])),
-            // onChangeStart: (double value) {},
-            // onChangeEnd: (double value) {},
-            // onChange: (double value) {},
+                customColors: CustomSliderColors(
+                    hideShadow: true,
+                    progressBarColors: [
+                      const Color.fromARGB(255, 62, 164, 255),
+                      const Color.fromARGB(255, 102, 204, 255),
+                      const Color.fromARGB(255, 142, 244, 255),
+                    ])),
             onChange: handleSliderChange,
-            // onChangeStart: handleSliderChange,
-            // onChangeEnd: handleSliderChange,
           ),
         ),
       ],

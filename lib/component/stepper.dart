@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 enum StepperEventType { increase, decrease }
 
-typedef StepperChangeCallback(int val);
+typedef StepperChangeCallback = void Function(int val);
 
 // - 3 +
 class SyStepper extends StatelessWidget {
@@ -14,11 +14,11 @@ class SyStepper extends StatelessWidget {
   final int step;
   final double iconSize;
   final double textSize;
-  final StepperChangeCallback onChange;
-  final Function manualControl;
+  final StepperChangeCallback? onChange;
+  final void Function(StepperEventType type, int nowValue)? manualControl;
 
   const SyStepper({
-    Key key,
+    super.key,
     this.value = 1,
     this.onChange,
     this.min = 1,
@@ -27,79 +27,66 @@ class SyStepper extends StatelessWidget {
     this.iconSize = 24.0,
     this.textSize = 24.0,
     this.manualControl,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
     int value = this.value;
     ThemeData theme = Theme.of(context);
-    final iconPadding = const EdgeInsets.all(4.0);
-    bool minusBtnDisabled = value <= this.min || value - this.step < this.min || this.onChange == null;
-    bool addBtnDisabled = value >= this.max || value + this.step > this.max || this.onChange == null;
+    const iconPadding = EdgeInsets.all(4.0);
+    bool minusBtnDisabled =
+        value <= min || value - step < min || onChange == null;
+    bool addBtnDisabled =
+        value >= max || value + step > max || onChange == null;
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: <Widget>[
         InkWell(
+          onTap: minusBtnDisabled
+              ? null
+              : manualControl != null
+                  ? () => manualControl!(StepperEventType.decrease, value)
+                  : () => onChange!(value - step),
           child: Padding(
             padding: iconPadding,
             child: Icon(
               Icons.remove,
-              size: this.iconSize,
-              color: minusBtnDisabled ? theme.disabledColor : theme.textTheme.button.color,
+              size: iconSize,
+              color: minusBtnDisabled
+                  ? theme.disabledColor
+                  : theme.textTheme.labelLarge?.color,
             ),
           ),
-          onTap: minusBtnDisabled
-              ? null
-              : this.manualControl != null
-                  ? () {
-                      this.manualControl(
-                        StepperEventType.decrease,
-                        value,
-                      );
-                    }
-                  : () {
-                      int newVal = value - this.step;
-
-                      this.onChange(newVal);
-                    },
         ),
         Padding(
-          padding: EdgeInsets.symmetric(horizontal: 4.0),
+          padding: const EdgeInsets.symmetric(horizontal: 4.0),
           child: ConstrainedBox(
+            constraints: BoxConstraints(minWidth: iconSize),
             child: Center(
                 child: Text(
               value.toString(),
               style: TextStyle(
-                fontSize: this.textSize,
-                // color: Color.fromRGBO(84, 84, 84, 1),
+                fontSize: textSize,
               ),
             )),
-            constraints: BoxConstraints(minWidth: this.iconSize),
           ),
         ),
         InkWell(
+          onTap: addBtnDisabled
+              ? null
+              : manualControl != null
+                  ? () => manualControl!(StepperEventType.increase, value)
+                  : () => onChange!(value + step),
           child: Padding(
             padding: iconPadding,
             child: Icon(
               Icons.add,
-              size: this.iconSize,
-              color: addBtnDisabled ? theme.disabledColor : theme.textTheme.button.color,
+              size: iconSize,
+              color: addBtnDisabled
+                  ? theme.disabledColor
+                  : theme.textTheme.labelLarge?.color,
             ),
           ),
-          onTap: addBtnDisabled
-              ? null
-              : this.manualControl != null
-                  ? () {
-                      this.manualControl(
-                        StepperEventType.increase,
-                        value,
-                      );
-                    }
-                  : () {
-                      int newVal = value + this.step;
-
-                      this.onChange(newVal);
-                    },
         ),
       ],
     );

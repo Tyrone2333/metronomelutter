@@ -1,5 +1,5 @@
-import 'package:metronomelutter/config/config.dart';
-import 'package:metronomelutter/global_data.dart';
+import 'package:metronome/config/config.dart';
+import 'package:metronome/global_data.dart';
 import 'package:mobx/mobx.dart';
 
 // Include generated file
@@ -26,13 +26,13 @@ abstract class _MetronomeStore with Store {
   int note = Config.NOTE_DEFAULT;
 
   @action
-  void setSoundType(payload) {
+  void setSoundType(int payload) {
     soundType = payload;
     GlobalData.sp.putInt('soundType', payload);
   }
 
   @action
-  void setBeat(payload) {
+  void setBeat(int payload) {
     if (payload < Config.BEAT_MIN) {
       beat = Config.BEAT_MIN;
     } else if (payload > Config.BEAT_MAX) {

@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 
 class CustomGridView extends StatelessWidget {
+  CustomGridView({super.key});
+
   final data = List.generate(128, (i) => Color(0xFFFF00FF - 2 * i));
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return SizedBox(
       height: 200,
       child: GridView.count(
         crossAxisCount: 4,
@@ -24,10 +26,12 @@ class CustomGridView extends StatelessWidget {
         color: color,
         child: Text(
           colorString(color),
-          style: TextStyle(
-              color: Colors.white, shadows: [Shadow(color: Colors.black, offset: Offset(.5, .5), blurRadius: 2)]),
+          style: const TextStyle(color: Colors.white, shadows: [
+            Shadow(color: Colors.black, offset: Offset(.5, .5), blurRadius: 2)
+          ]),
         ),
       );
 
-  String colorString(Color color) => "#${color.value.toRadixString(16).padLeft(8, '0').toUpperCase()}";
+  String colorString(Color color) =>
+      "#${color.toARGB32().toRadixString(16).padLeft(8, '0').toUpperCase()}";
 }
